@@ -7,6 +7,8 @@
 	import '@fontsource/geist-sans/700.css';
 	import { onMount } from 'svelte';
 	import { Loader2 } from 'lucide-svelte';
+	import { derived, writable } from 'svelte/store';
+
 	interface Props {
 		children?: import('svelte').Snippet;
 	}
@@ -14,6 +16,7 @@
 	let { children }: Props = $props();
 
 	let mounting = $state(true);
+	let navigatingBoolean = derived(navigating, ($navigating) => $navigating !== null);
 
 	const startTimer = (f: () => void, ms: number) => {
 		let timer = setTimeout(f, ms);
@@ -23,15 +26,18 @@
 	};
 
 	let longNavigating = $state(false);
-	let stopTimer = () => {
-		// left empty for a reason
-	};
 
-	$effect(() => {
-		if ($navigating) {
-			stopTimer = startTimer(() => {
-				longNavigating = true;
-			}, 100);
+	let stopTimer = $state(() => {
+		// left empty for a reason
+	});
+
+	navigatingBoolean.subscribe((value) => {
+		if (value) {
+			if ($navigatingBoolean == false) {
+				stopTimer = startTimer(() => {
+					longNavigating = true;
+				}, 100);
+			}
 		} else {
 			stopTimer();
 			longNavigating = false;
