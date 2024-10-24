@@ -51,7 +51,8 @@
 						}
 					],
 			disableMultiSort: false,
-			toggleOrder: ['asc', 'desc']
+			toggleOrder: ['asc', 'desc'],
+			serverSide: true
 		})
 	});
 
