@@ -3,8 +3,8 @@
 
 	import type { Case } from '$lib/types';
 	import { createTable, Render, Subscribe } from 'svelte-headless-table';
-	import { writable } from 'svelte/store';
-	import { addPagination } from 'svelte-headless-table/plugins';
+	import { readable, writable } from 'svelte/store';
+	import { addPagination, addSortBy } from 'svelte-headless-table/plugins';
 
 	import * as Table from '$lib/components/ui/table';
 	import { page } from '$app/stores';
@@ -13,7 +13,8 @@
 	import { goto } from '$app/navigation';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import { Label } from '$lib/components/ui/label';
-
+	import { cn } from '$lib/utils';
+	import { ArrowUpDown } from 'lucide-svelte';
 	interface Props {
 		data: Case[];
 		count: number;
@@ -23,12 +24,6 @@
 
 	const paginatedData = writable(data);
 	const countStore = writable(count);
-
-	$effect.pre(() => {
-		// need to be reactive because data can change
-		$paginatedData = data;
-		// pluginStates.page.pageCount .update(() => count);
-	});
 
 	const table = createTable(paginatedData, {
 		page: addPagination({
@@ -40,6 +35,23 @@
 			initialPageSize: $page.url.searchParams.get('pageSize')
 				? Number($page.url.searchParams.get('pageSize'))
 				: undefined
+		}),
+		sort: addSortBy({
+			initialSortKeys: $page.url.searchParams.get('order')
+				? [
+						{
+							id: $page.url.searchParams.get('column') ?? 'createdAt',
+							order: $page.url.searchParams.get('order') === 'DESC' ? 'asc' : 'desc'
+						}
+					]
+				: [
+						{
+							id: 'createdAt',
+							order: 'asc'
+						}
+					],
+			disableMultiSort: false,
+			toggleOrder: ['asc', 'desc']
 		})
 	});
 
@@ -82,7 +94,9 @@
 
 	const { headerRows, pageRows, tableAttrs, tableBodyAttrs, pluginStates } =
 		table.createViewModel(columns);
+
 	const { pageIndex, pageSize, hasNextPage, hasPreviousPage } = pluginStates.page;
+	const { sortKeys } = pluginStates.sort;
 
 	const kinds = [
 		{ value: 'all', label: 'All' },
@@ -101,19 +115,19 @@
 
 	let statusFilter = $state(kinds[0]);
 
-	run(() => {
-		if (browser) {
-			const q = new URLSearchParams();
-			// if ($sortKeys.length) {
-			// 	q.set('sort', ($sortKeys[0].order === 'asc' ? '+' : '-') + $sortKeys[0].id);
-			// }
-			q.set('kind', kindFilter.value);
-			q.set('status', statusFilter.value);
-			q.set('pageSize', String($pageSize));
-			q.set('pageIndex', String($pageIndex));
-			// here I call again +page.server.ts with the new url
-			goto(`?${q}`, { noScroll: true });
+	$effect(() => {
+		const q = new URLSearchParams();
+		if ($sortKeys.length) {
+			console.log($sortKeys);
+			q.set('order', $sortKeys[0].order === 'asc' ? 'ASC' : 'DESC');
+			q.set('column', $sortKeys[0].id);
 		}
+		q.set('kind', kindFilter.value);
+		q.set('status', statusFilter.value);
+		q.set('pageSize', String($pageSize));
+		q.set('pageIndex', String($pageIndex));
+		// here I call again +page.server.ts with the new url
+		goto(`?${q}`, { noScroll: true });
 	});
 </script>
 
@@ -160,9 +174,21 @@
 					<Table.Row>
 						{#each headerRow.cells as cell (cell.id)}
 							<Subscribe attrs={cell.attrs()} props={cell.props()}>
-								{#snippet children({ attrs })}
+								{#snippet children({ attrs, props })}
 									<Table.Head {...attrs}>
-										<Render of={cell.render()} />
+										{#if cell.id === 'createdAt'}
+											<Button variant="ghost" on:click={props.sort.toggle}>
+												<Render of={cell.render()} />
+												<ArrowUpDown
+													class={cn(
+														$sortKeys[0]?.id === cell.id && 'text-foreground',
+														'ml-2 h-4 w-4'
+													)}
+												/>
+											</Button>
+										{:else}
+											<Render of={cell.render()} />
+										{/if}
 									</Table.Head>
 								{/snippet}
 							</Subscribe>
