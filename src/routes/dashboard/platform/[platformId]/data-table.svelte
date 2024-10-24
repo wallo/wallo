@@ -41,7 +41,7 @@
 				? [
 						{
 							id: $page.url.searchParams.get('column') ?? 'createdAt',
-							order: $page.url.searchParams.get('order') === 'DESC' ? 'asc' : 'desc'
+							order: $page.url.searchParams.get('order') === 'DESC' ? 'desc' : 'asc'
 						}
 					]
 				: [
