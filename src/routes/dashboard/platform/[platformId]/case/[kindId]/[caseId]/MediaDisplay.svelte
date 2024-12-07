@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Card } from '$lib/components/ui/card';
-	import { Label } from '$lib/components/ui/label';
+	import { Card } from '$ui/card';
+	import { Label } from '$ui/label';
 	import type { Media } from '$lib/types';
 
 	interface Props {

@@ -14,6 +14,9 @@ const config = {
 		adapter: adapter(),
 		csrf: {
 			checkOrigin: false
+		},
+		alias: {
+			$ui: 'src/lib/components/ui'
 		}
 	}
 };

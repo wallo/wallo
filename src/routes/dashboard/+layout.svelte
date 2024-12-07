@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { LayoutData } from './$types';
-	import * as Avatar from '$lib/components/ui/avatar';
-	import ThemeSwitch from '$lib/components/ui/theme-switch/theme-switch.svelte';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import * as Avatar from '$ui/avatar';
+	import ThemeSwitch from '$ui/theme-switch/theme-switch.svelte';
+	import * as DropdownMenu from '$ui/dropdown-menu/index.js';
 	import { signOut } from '@auth/sveltekit/client';
 	import Logo from '$lib/logo.svelte';
 	import { getInitials } from '$lib/name';

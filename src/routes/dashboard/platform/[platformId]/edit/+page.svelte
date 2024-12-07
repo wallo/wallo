@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import Separator from '$ui/separator/separator.svelte';
 	import type { PageData } from './$types.js';
-	import * as Avatar from '$lib/components/ui/avatar';
+	import * as Avatar from '$ui/avatar';
 	import EditForm from './EditForm.svelte';
 	import InviteForm from './InviteForm.svelte';
 	import DeleteInvitationForm from './DeleteInvitationForm.svelte';

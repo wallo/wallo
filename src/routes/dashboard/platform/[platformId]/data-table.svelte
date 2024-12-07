@@ -1,18 +1,15 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import type { Case } from '$lib/types';
 	import { createTable, Render, Subscribe } from 'svelte-headless-table';
-	import { readable, writable } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import { addPagination, addSortBy } from 'svelte-headless-table/plugins';
 
-	import * as Table from '$lib/components/ui/table';
+	import * as Table from '$ui/table';
 	import { page } from '$app/stores';
-	import { Button } from '$lib/components/ui/button';
-	import { browser } from '$app/environment';
+	import { Button } from '$ui/button';
 	import { goto } from '$app/navigation';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$ui/select/index.js';
+	import { Label } from '$ui/label';
 	import { cn } from '$lib/utils';
 	import { ArrowUpDown } from 'lucide-svelte';
 	interface Props {

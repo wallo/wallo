@@ -1,9 +1,9 @@
 <script lang="ts">
-	import * as Form from '$lib/components/ui/form';
+	import * as Form from '$ui/form';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { commentFormSchema, type CommentFormSchema } from './comment-schema';
-	import { Textarea } from '$lib/components/ui/textarea';
+	import { Textarea } from '$ui/textarea';
 
 	interface Props {
 		data: SuperValidated<Infer<CommentFormSchema>>;

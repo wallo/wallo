@@ -7,7 +7,7 @@
 	import '@fontsource/geist-sans/700.css';
 	import { onMount } from 'svelte';
 	import { Loader2 } from 'lucide-svelte';
-	import { derived, writable } from 'svelte/store';
+	import { derived } from 'svelte/store';
 
 	interface Props {
 		children?: import('svelte').Snippet;

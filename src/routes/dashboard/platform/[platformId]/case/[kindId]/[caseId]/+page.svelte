@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
+	import { Input } from '$ui/input';
+	import { Label } from '$ui/label';
 	import type { PageData } from './$types';
-	import { Card } from '$lib/components/ui/card';
-	import CardDescription from '$lib/components/ui/card/card-description.svelte';
+	import { Card } from '$ui/card';
+	import CardDescription from '$ui/card/card-description.svelte';
 	import CommentForm from './comment-form.svelte';
-	import { Separator } from '$lib/components/ui/separator';
+	import { Separator } from '$ui/separator';
 	import { Info } from 'lucide-svelte';
 	import ActionForm from './action-form.svelte';
 	import MediaDisplay from './MediaDisplay.svelte';

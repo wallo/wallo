@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Button } from '$lib/components/ui/button';
-	import ThemeSwitch from '$lib/components/ui/theme-switch/theme-switch.svelte';
+	import { Button } from '$ui/button';
+	import ThemeSwitch from '$ui/theme-switch/theme-switch.svelte';
 	import type { PageData } from './$types';
 	import { signIn } from '@auth/sveltekit/client';
 	import Logo from '$lib/logo.svelte';
-	import * as Card from '$lib/components/ui/card';
-	import * as Avatar from '$lib/components/ui/avatar';
+	import * as Card from '$ui/card';
+	import * as Avatar from '$ui/avatar';
 	import Highlight from 'svelte-highlight';
 	import typescript from 'svelte-highlight/languages/typescript';
 	import { default as lightTheme } from 'svelte-highlight/styles/a11y-light';

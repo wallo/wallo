@@ -1,10 +1,10 @@
 <script lang="ts">
-	import * as Form from '$lib/components/ui/form';
+	import * as Form from '$ui/form';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { actionFormSchema, type ActionFormSchema } from './action-schema';
 	import type { PossibleAction } from '$lib/types';
-	import Input from '$lib/components/ui/input/input.svelte';
+	import Input from '$ui/input/input.svelte';
 
 	const form = superForm(data, {
 		validators: zodClient(actionFormSchema)

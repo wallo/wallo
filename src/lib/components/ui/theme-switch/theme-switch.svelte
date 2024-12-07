@@ -3,8 +3,8 @@
 	import Moon from 'lucide-svelte/icons/moon';
 
 	import { resetMode, setMode } from 'mode-watcher';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { Button } from '$lib/components/ui/button';
+	import * as DropdownMenu from '$ui/dropdown-menu';
+	import { Button } from '$ui/button';
 </script>
 
 <DropdownMenu.Root>
