@@ -36,7 +36,7 @@
 					<DropdownMenu.Label>My Account</DropdownMenu.Label>
 					<DropdownMenu.Separator />
 					<DropdownMenu.Item
-						on:click={() =>
+						onclick={() =>
 							signOut({
 								callbackUrl: '/'
 							})}>Logout</DropdownMenu.Item

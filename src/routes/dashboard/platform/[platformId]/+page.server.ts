@@ -2,45 +2,76 @@ import type { PageServerLoad } from './$types';
 import { fixCase, type CaseDB } from '$lib/types';
 import { restrict } from '$lib/string';
 import { canEnter } from './auth';
+import type { ColumnFiltersState, SortingState } from '@tanstack/table-core';
 
 export const load = (async ({ platform, url, locals, params }) => {
 	await canEnter(params, platform, locals);
 
-	const order = restrict(url.searchParams.get('order'), ['ASC', 'DESC']) ?? 'ASC';
+	const order = restrict(url.searchParams.get('order'), ['ASC', 'DESC']) ?? 'DESC';
+
+	const idLike = url.searchParams.get('relevantId') ?? '';
 
 	const kind =
 		restrict(url.searchParams.get('kind'), ['content', 'user', 'community', 'all']) ?? 'all';
 
-	const kindFilterSQL = kind === 'all' ? '' : `WHERE kind = "${kind}"`;
+	const kindFilterSQL = kind === 'all' ? '' : `AND kind = "${kind}" `;
 
 	const status =
 		restrict(url.searchParams.get('status'), ['resolved', 'unresolved', 'all']) ?? 'all';
 
-	const statusFilterSql = status === 'all' ? '' : `WHERE status = "${status}"`;
+	const statusFilterSql = status === 'all' ? '' : `AND status = "${status}" `;
 
-	const whereFilters = [kindFilterSQL, statusFilterSql].filter(Boolean).join(' AND ');
+	const whereClauses = kindFilterSQL + statusFilterSql;
 
 	const column =
 		restrict(url.searchParams.get('column'), ['createdAt', 'updatedAt']) ?? 'createdAt';
 
-	const pageIndex = Math.floor(Number(url.searchParams.get('pageIndex')));
+	const count =
+		(await platform?.env.DB.prepare(
+			`SELECT COUNT(*) AS total FROM cases WHERE relevantId LIKE ? ${whereClauses}`
+		)
+			.bind(`%${idLike}%`)
+			.first<number>('total')) ?? 0;
+
 	const pageSize = Math.max(Math.floor(Number(url.searchParams.get('pageSize'))), 10);
+	const pageIndex = Math.max(
+		0,
+		Math.min(Math.floor(Number(url.searchParams.get('pageIndex'))), Math.ceil(count / pageSize) - 1)
+	);
+
+	const sortingState: SortingState = [
+		{
+			id: column,
+			desc: order === 'DESC'
+		}
+	];
+
+	const kindFilterState: ColumnFiltersState = kind === 'all' ? [] : [{ id: 'kind', value: kind }];
+	const statusFilterState: ColumnFiltersState =
+		status === 'all' ? [] : [{ id: 'status', value: status }];
+	const relevantIdFilterState: ColumnFiltersState =
+		idLike === '' ? [] : [{ id: 'relevantId', value: idLike }];
+
+	const columnFilterState = kindFilterState.concat(statusFilterState).concat(relevantIdFilterState);
 
 	const relevantCases = (
 		(
 			await platform?.env.DB.prepare(
-				`SELECT * FROM cases ${whereFilters} ORDER BY ${column} ${order} LIMIT ${pageSize} OFFSET ${pageIndex * pageSize}`
-			).all<CaseDB>()
+				`SELECT * FROM cases WHERE relevantId LIKE ? ${whereClauses} ORDER BY ${column} ${order} LIMIT ${pageSize} OFFSET ${pageIndex * pageSize}`
+			)
+				.bind(`%${idLike}%`)
+				.all<CaseDB>()
 		)?.results ?? []
 	).map(fixCase);
 
-	const count =
-		(await platform?.env.DB.prepare(
-			`SELECT COUNT(*) AS total FROM cases ${whereFilters}`
-		).first<number>('total')) ?? 0;
-
 	return {
 		relevantCases: relevantCases,
+		pagination: {
+			pageIndex: pageIndex,
+			pageSize: pageSize
+		},
+		sorting: sortingState,
+		columnFilters: columnFilterState,
 		count
 	};
 }) satisfies PageServerLoad;

@@ -10,5 +10,11 @@
 </script>
 
 <div class="my-10">
-	<DataTable data={data.relevantCases} count={data.count} />
+	<DataTable
+		data={data.relevantCases}
+		count={data.count}
+		pagination={data.pagination}
+		sorting={data.sorting}
+		columnFilters={data.columnFilters}
+	/>
 </div>

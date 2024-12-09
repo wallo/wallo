@@ -17,7 +17,7 @@
 
 <h2 class="my-3 flex max-w-screen-md place-content-between text-2xl font-extrabold">
 	Manage Platforms
-	<Button variant="secondary" on:click={() => goto('create')}>
+	<Button variant="secondary" onclick={() => goto('create')}>
 		<Plus class="me-2 h-4 w-4"></Plus>
 		Add
 	</Button>

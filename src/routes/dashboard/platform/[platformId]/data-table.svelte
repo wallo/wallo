@@ -1,100 +1,120 @@
 <script lang="ts">
 	import type { Case } from '$lib/types';
-	import { createTable, Render, Subscribe } from 'svelte-headless-table';
-	import { writable } from 'svelte/store';
-	import { addPagination, addSortBy } from 'svelte-headless-table/plugins';
 
 	import * as Table from '$ui/table';
+	import { createSvelteTable, FlexRender, renderComponent } from '$ui/data-table';
 	import { page } from '$app/stores';
 	import { Button } from '$ui/button';
 	import { goto } from '$app/navigation';
-	import * as Select from '$ui/select/index.js';
+	import {
+		type ColumnDef,
+		type ColumnFiltersState,
+		type PaginationState,
+		type SortingState,
+		getCoreRowModel
+	} from '@tanstack/table-core';
+	import * as Select from '$ui/select';
+	import DataTableSortableHeader from './data-table-sortable-header.svelte';
 	import { Label } from '$ui/label';
-	import { cn } from '$lib/utils';
-	import { ArrowUpDown } from 'lucide-svelte';
+	import { Input } from '$ui/input';
+	import { Search } from 'lucide-svelte';
+
 	interface Props {
 		data: Case[];
 		count: number;
+		pagination: PaginationState;
+		sorting: SortingState;
+		columnFilters: ColumnFiltersState;
 	}
 
-	let { data, count }: Props = $props();
+	let { data, pagination, count, sorting, columnFilters }: Props = $props();
 
-	const paginatedData = writable(data);
-	const countStore = writable(count);
+	const columns: ColumnDef<Case>[] = [
+		{
+			accessorKey: 'relevantId',
+			header: 'ID'
+		},
+		{
+			accessorKey: 'status',
+			header: 'Status'
+		},
+		{
+			accessorKey: 'kind',
+			header: 'Kind'
+		},
+		{
+			accessorKey: 'createdAt',
+			header: ({ column }) =>
+				renderComponent(DataTableSortableHeader, {
+					header: 'Created At',
+					sortingStatus: column.getIsSorted(),
+					onclick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+				}),
+			cell: ({ row }) => {
+				return (row.getValue('createdAt') as Date).toLocaleString();
+			},
+			sortingFn: 'datetime'
+		}
+	];
 
-	const table = createTable(paginatedData, {
-		page: addPagination({
-			serverSide: true,
-			serverItemCount: countStore,
-			initialPageIndex: $page.url.searchParams.get('pageIndex')
-				? Number($page.url.searchParams.get('pageIndex'))
-				: undefined,
-			initialPageSize: $page.url.searchParams.get('pageSize')
-				? Number($page.url.searchParams.get('pageSize'))
-				: undefined
-		}),
-		sort: addSortBy({
-			initialSortKeys: $page.url.searchParams.get('order')
-				? [
-						{
-							id: $page.url.searchParams.get('column') ?? 'createdAt',
-							order: $page.url.searchParams.get('order') === 'DESC' ? 'desc' : 'asc'
-						}
-					]
-				: [
-						{
-							id: 'createdAt',
-							order: 'asc'
-						}
-					],
-			disableMultiSort: false,
-			toggleOrder: ['asc', 'desc'],
-			serverSide: true
-		})
+	const table = createSvelteTable({
+		get data() {
+			return data;
+		},
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		state: {
+			get pagination() {
+				return pagination;
+			},
+			get sorting() {
+				return sorting;
+			},
+			get columnFilters() {
+				return columnFilters;
+			}
+		},
+		manualPagination: true,
+		manualSorting: true,
+		manualFiltering: true,
+		get rowCount() {
+			return count;
+		},
+		enableSortingRemoval: true,
+		enableMultiRemove: false,
+		onPaginationChange: (updater) => {
+			const newPagination = typeof updater === 'function' ? updater(pagination) : updater;
+			const q = new URLSearchParams($page.url.searchParams);
+			q.set('pageIndex', String(newPagination.pageIndex));
+			q.set('pageSize', String(newPagination.pageSize));
+			goto(`?${q}`, { noScroll: true });
+		},
+		onSortingChange: (updater) => {
+			const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
+			const q = new URLSearchParams($page.url.searchParams);
+			if (newSorting.length > 0) {
+				q.set('order', newSorting[0].desc ? 'DESC' : 'ASC');
+				q.set('column', newSorting[0].id);
+			} else {
+				q.delete('order');
+				q.delete('column');
+			}
+			goto(`?${q}`, { noScroll: true });
+		},
+		onColumnFiltersChange: (updater) => {
+			const newColumnFilters = typeof updater === 'function' ? updater(columnFilters) : updater;
+			const q = new URLSearchParams($page.url.searchParams);
+			for (const id of ['status', 'kind', 'relevantId']) {
+				q.delete(id);
+			}
+			for (const { id, value } of newColumnFilters) {
+				if (typeof value === 'string' && value.length > 0) {
+					q.set(id, value);
+				}
+			}
+			goto(`?${q}`, { noScroll: true });
+		}
 	});
-
-	const columns = table.createColumns([
-		table.column({
-			accessor: 'relevantId',
-			header: 'ID',
-			plugins: {
-				sort: {
-					disable: true
-				}
-			}
-		}),
-		table.column({
-			accessor: 'status',
-			header: 'Status',
-			plugins: {
-				sort: {
-					disable: true
-				}
-			}
-		}),
-		table.column({
-			accessor: 'kind',
-			header: 'Kind',
-			plugins: {
-				sort: {
-					disable: true
-				}
-			}
-		}),
-		table.column({
-			accessor: 'createdAt',
-			header: 'Created At',
-			cell: ({ value }) => {
-				return value.toLocaleString();
-			}
-		})
-	]);
-
-	const { headerRows, pageRows, tableAttrs, tableBodyAttrs, pluginStates } =
-		table.createViewModel(columns);
-
-	const { pageIndex, pageSize, hasNextPage, hasPreviousPage } = pluginStates.page;
-	const { sortKeys } = pluginStates.sort;
 
 	const kinds = [
 		{ value: 'all', label: 'All' },
@@ -103,38 +123,56 @@
 		{ value: 'content', label: 'Content' }
 	];
 
-	let kindFilter = $state(kinds[0]);
-
 	const statuses = [
 		{ value: 'all', label: 'All' },
 		{ value: 'resolved', label: 'Resolved' },
 		{ value: 'unresolved', label: 'Unresolved' }
 	];
 
-	let statusFilter = $state(kinds[0]);
+	let kindFilter: string = $derived(
+		(columnFilters.find((filter) => filter.id === 'kind')?.value as string | undefined) ?? 'all'
+	);
 
-	$effect(() => {
-		const q = new URLSearchParams();
-		if ($sortKeys.length) {
-			console.log($sortKeys);
-			q.set('order', $sortKeys[0].order === 'asc' ? 'ASC' : 'DESC');
-			q.set('column', $sortKeys[0].id);
-		}
-		q.set('kind', kindFilter.value);
-		q.set('status', statusFilter.value);
-		q.set('pageSize', String($pageSize));
-		q.set('pageIndex', String($pageIndex));
-		// here I call again +page.server.ts with the new url
-		goto(`?${q}`, { noScroll: true });
-	});
+	let statusFilter: string = $derived(
+		(columnFilters.find((filter) => filter.id === 'status')?.value as string | undefined) ?? 'all'
+	);
+
+	let idLikeValue = $state(
+		(columnFilters.find((filter) => filter.id === 'relevantId')?.value as string | undefined) ?? ''
+	);
+
+	function updateRelevantIdFilter() {
+		table.getColumn('relevantId')?.setFilterValue(() => idLikeValue ?? '');
+	}
 </script>
 
-<div class="my-2 flex items-end gap-2">
+<div class="my-2 flex flex-wrap items-end gap-2 gap-y-4">
+	<div class="me-auto flex flex-col gap-2">
+		<Label for="searchFilter">Search</Label>
+		<div class="flex items-center gap-2">
+			<Input
+				type="text"
+				id="searchFilter"
+				class="input"
+				bind:value={idLikeValue}
+				onchange={updateRelevantIdFilter}
+			/>
+			<Button variant="outline" size="icon" onclick={updateRelevantIdFilter}>
+				<Search class="mx-4 size-4"></Search>
+			</Button>
+		</div>
+	</div>
 	<div class="flex flex-col gap-2">
 		<Label for="kindFilter">Kind</Label>
-		<Select.Root bind:selected={kindFilter}>
-			<Select.Trigger class="w-[180px]">
-				<Select.Value placeholder="Filter kind" />
+		<Select.Root
+			type="single"
+			value={kindFilter}
+			onValueChange={(newValue) => {
+				table.getColumn('kind')?.setFilterValue(() => newValue);
+			}}
+		>
+			<Select.Trigger class="w-48 min-w-min">
+				{kinds.find((kind) => kind.value === kindFilter)?.label ?? kinds[0].label}
 			</Select.Trigger>
 			<Select.Content>
 				<Select.Group>
@@ -143,14 +181,19 @@
 					{/each}
 				</Select.Group>
 			</Select.Content>
-			<Select.Input name="kindFilter" />
 		</Select.Root>
 	</div>
 	<div class="flex flex-col gap-2">
 		<Label for="statusFilter">Status</Label>
-		<Select.Root bind:selected={statusFilter}>
-			<Select.Trigger class="w-[180px]">
-				<Select.Value placeholder="Filter status" />
+		<Select.Root
+			type="single"
+			value={statusFilter}
+			onValueChange={(newValue) => {
+				table.getColumn('status')?.setFilterValue(() => newValue);
+			}}
+		>
+			<Select.Trigger class="w-48 min-w-min">
+				{statuses.find((status) => status.value === statusFilter)?.label ?? statuses[0].label}
 			</Select.Trigger>
 			<Select.Content>
 				<Select.Group>
@@ -159,83 +202,64 @@
 					{/each}
 				</Select.Group>
 			</Select.Content>
-			<Select.Input name="statusFilter" />
 		</Select.Root>
 	</div>
 </div>
 
 <div class="rounded-md border">
-	<Table.Root {...$tableAttrs}>
+	<Table.Root>
 		<Table.Header>
-			{#each $headerRows as headerRow}
-				<Subscribe rowAttrs={headerRow.attrs()}>
-					<Table.Row>
-						{#each headerRow.cells as cell (cell.id)}
-							<Subscribe attrs={cell.attrs()} props={cell.props()}>
-								{#snippet children({ attrs, props })}
-									<Table.Head {...attrs}>
-										{#if cell.id === 'createdAt'}
-											<Button variant="ghost" on:click={props.sort.toggle}>
-												<Render of={cell.render()} />
-												<ArrowUpDown
-													class={cn(
-														$sortKeys[0]?.id === cell.id && 'text-foreground',
-														'ml-2 h-4 w-4'
-													)}
-												/>
-											</Button>
-										{:else}
-											<Render of={cell.render()} />
-										{/if}
-									</Table.Head>
-								{/snippet}
-							</Subscribe>
-						{/each}
-					</Table.Row>
-				</Subscribe>
+			{#each table.getHeaderGroups() as headerGroup}
+				<Table.Row>
+					{#each headerGroup.headers as header (header.id)}
+						<Table.Head>
+							{#if !header.isPlaceholder}
+								<FlexRender
+									content={header.column.columnDef.header}
+									context={header.getContext()}
+								/>
+							{/if}
+						</Table.Head>
+					{/each}
+				</Table.Row>
 			{/each}
 		</Table.Header>
-		<Table.Body {...$tableBodyAttrs}>
-			{#each $pageRows as row (row.id)}
-				<Subscribe rowAttrs={row.attrs()}>
-					{#snippet children({ rowAttrs })}
-						<Table.Row
-							{...rowAttrs}
-							on:click={() => {
-								if (row.isData()) {
-									goto(`case/${row.original.kind}/${row.original.relevantId}`);
-								}
-							}}
-							class="cursor-pointer transition-colors duration-200 ease-in-out hover:bg-gray-400/5"
-						>
-							{#each row.cells as cell (cell.id)}
-								<Subscribe attrs={cell.attrs()}>
-									{#snippet children({ attrs })}
-										<Table.Cell {...attrs}>
-											<Render of={cell.render()} />
-										</Table.Cell>
-									{/snippet}
-								</Subscribe>
-							{/each}
-						</Table.Row>
-					{/snippet}
-				</Subscribe>
+		<Table.Body>
+			{#each table.getRowModel().rows as row (row.id)}
+				<Table.Row data-state={row.getIsSelected() && 'selected'}>
+					{#each row.getVisibleCells() as cell (cell.id)}
+						<Table.Cell>
+							<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
+						</Table.Cell>
+					{/each}
+				</Table.Row>
+			{:else}
+				<Table.Row>
+					<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
+				</Table.Row>
 			{/each}
 		</Table.Body>
 	</Table.Root>
 </div>
 
-<div class="flex items-center justify-end space-x-4 py-4">
+<div class="flex items-center justify-end space-x-2 py-4">
+	<div>
+		Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+	</div>
 	<Button
 		variant="outline"
 		size="sm"
-		on:click={() => ($pageIndex = $pageIndex - 1)}
-		disabled={!$hasPreviousPage}>Previous</Button
+		onclick={() => table.previousPage()}
+		disabled={!table.getCanPreviousPage()}
 	>
+		Previous
+	</Button>
 	<Button
 		variant="outline"
 		size="sm"
-		disabled={!$hasNextPage}
-		on:click={() => ($pageIndex = $pageIndex + 1)}>Next</Button
+		onclick={() => table.nextPage()}
+		disabled={!table.getCanNextPage()}
 	>
+		Next
+	</Button>
 </div>

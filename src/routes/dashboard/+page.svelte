@@ -15,7 +15,7 @@
 
 <h2 class="my-3 flex max-w-screen-md place-content-between text-2xl font-extrabold">
 	Manage Organization
-	<Button variant="secondary" on:click={() => goto('/dashboard/organization/create')}>
+	<Button variant="secondary" onclick={() => goto('/dashboard/organization/create')}>
 		<Plus class="me-2 h-4 w-4"></Plus>
 		Add
 	</Button>

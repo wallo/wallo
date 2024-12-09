@@ -89,12 +89,12 @@
 			</div>
 			<div>
 				{#if data.session}
-					<Button size="sm" variant="outline" on:click={() => goto('/dashboard')}>Dashboard</Button>
+					<Button size="sm" variant="outline" onclick={() => goto('/dashboard')}>Dashboard</Button>
 				{:else}
 					<Button
 						size="sm"
 						variant="outline"
-						on:click={() =>
+						onclick={() =>
 							signIn('github', {
 								callbackUrl: '/dashboard'
 							})}>Login</Button
@@ -119,7 +119,7 @@
 				Moderate user-generated contents efficiently.
 			</p>
 			<div class="flex gap-4 py-4 md:pb-10">
-				<Button on:click={() => goto('/dashboard')}>Get Started</Button>
+				<Button onclick={() => goto('/dashboard')}>Get Started</Button>
 				<Button variant="outline" href="https://gitlab.com/wallo-dev/wallo">Source Code</Button>
 			</div>
 		</section>
@@ -383,7 +383,7 @@ fetch(YOUR_PLATFORM, {
 										<Button
 											class="flex-1"
 											variant="destructive"
-											on:click={() => {
+											onclick={() => {
 												actionTaken = 'unapprove';
 											}}
 										>
@@ -393,7 +393,7 @@ fetch(YOUR_PLATFORM, {
 										<Button
 											class="flex-1"
 											variant="destructive"
-											on:click={() => {
+											onclick={() => {
 												actionTaken = 'unreject';
 											}}
 										>
@@ -432,14 +432,14 @@ fetch(YOUR_PLATFORM, {
 								<div class="flex w-full gap-4">
 									<Button
 										class="flex-1"
-										on:click={() => {
+										onclick={() => {
 											actionTaken = 'approve';
 										}}>Approve</Button
 									>
 									<Button
 										class="flex-1"
 										variant="destructive"
-										on:click={() => {
+										onclick={() => {
 											actionTaken = 'reject';
 										}}>Reject</Button
 									>
@@ -467,7 +467,7 @@ fetch(YOUR_PLATFORM, {
 						</Card.Description>
 					</Card.Content>
 					<Card.Footer>
-						<Button variant="outline" on:click={() => goto('/dashboard')}>Get Started</Button>
+						<Button variant="outline" onclick={() => goto('/dashboard')}>Get Started</Button>
 					</Card.Footer>
 				</Card.Root>
 				<Card.Root>
