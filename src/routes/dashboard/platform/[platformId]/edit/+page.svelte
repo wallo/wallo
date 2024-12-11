@@ -15,7 +15,7 @@
 
 <div class="flex">
 	<div class="basis-2/3">
-		<EditForm data={data.editPlatformForm} />
+		<EditForm data={data.editPlatformForm} secret={data.secret} platformId={data.platformId} />
 	</div>
 	<Separator orientation="vertical" class="mx-4 h-auto" />
 	<div class="flex-1">

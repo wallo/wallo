@@ -16,10 +16,10 @@
 </h1>
 
 <h2 class="my-3 flex max-w-screen-md place-content-between text-2xl font-extrabold">
-	Manage Platforms
+	Platforms Under {data.organization.name}
 	<Button variant="secondary" onclick={() => goto('create')}>
-		<Plus class="me-2 h-4 w-4"></Plus>
-		Add
+		<Plus />
+		New
 	</Button>
 </h2>
 
@@ -27,7 +27,7 @@
 	{#each data.platforms as platform}
 		<li class="flex">
 			<a
-				class="flex w-full place-content-between rounded-md border px-4 py-3 font-mono text-sm"
+				class="flex w-full place-content-between items-center rounded-md border px-4 py-3 text-sm"
 				href="/dashboard/platform/{platform.id}/edit"
 			>
 				{platform.name}

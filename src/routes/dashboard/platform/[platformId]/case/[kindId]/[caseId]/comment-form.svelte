@@ -21,9 +21,9 @@
 <form method="POST" action="?/comment">
 	<Form.Field {form} name="comment">
 		<Form.Control>
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 				<Form.Label>Comment</Form.Label>
-				<Textarea {...attrs} bind:value={$formData.comment} />
+				<Textarea {...props} bind:value={$formData.comment} />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />

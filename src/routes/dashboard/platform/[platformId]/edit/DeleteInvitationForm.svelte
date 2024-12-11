@@ -22,8 +22,8 @@
 	<form class="flex gap-2" method="POST">
 		<Form.Field {form} name="email" class="hidden">
 			<Form.Control>
-				{#snippet children({ attrs })}
-					<Input {...attrs} bind:value={email} />
+				{#snippet children({ props })}
+					<Input {...props} bind:value={email} />
 				{/snippet}
 			</Form.Control>
 			<Form.FieldErrors />

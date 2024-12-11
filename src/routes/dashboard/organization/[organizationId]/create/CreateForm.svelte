@@ -24,9 +24,9 @@
 <form class="flex max-w-screen-md flex-col gap-2" method="POST" use:enhance>
 	<Form.Field {form} name="platformName">
 		<Form.Control>
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 				<Form.Label>Platform Name</Form.Label>
-				<Input {...attrs} bind:value={$formData.platformName} />
+				<Input {...props} bind:value={$formData.platformName} />
 			{/snippet}
 		</Form.Control>
 		<!-- <Form.Description>This is your organization display name.</Form.Description> -->
@@ -34,9 +34,9 @@
 	</Form.Field>
 	<Form.Field {form} name="callbackUrl">
 		<Form.Control>
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 				<Form.Label>Callback URL</Form.Label>
-				<Input {...attrs} bind:value={$formData.callbackUrl} />
+				<Input {...props} bind:value={$formData.callbackUrl} />
 			{/snippet}
 		</Form.Control>
 		<!-- <Form.Description>This is your organization display name.</Form.Description> -->

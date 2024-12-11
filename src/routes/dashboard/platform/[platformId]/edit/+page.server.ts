@@ -7,6 +7,7 @@ import type { Orgnaization, Platform } from '$lib/types';
 import { generateRandomHex } from '$lib/crypto';
 import { inviteFormSchema } from './invite-moderator';
 import { deleteModeratorFormSchema } from './delete-moderator';
+import { dev } from '$app/environment';
 
 async function isAuth({
 	locals,
@@ -47,7 +48,7 @@ async function isAuth({
 	};
 }
 
-export const load = (async ({ locals, platform, params }) => {
+export const load = (async ({ locals, platform, params, cookies }) => {
 	const { moderationPlatform, organization } = await isAuth({ locals, platform, params });
 
 	const moderators =
@@ -77,16 +78,30 @@ export const load = (async ({ locals, platform, params }) => {
 		)?.results ?? []
 	).map((i) => i.email);
 
+	let cookieSecret = cookies.get('secret');
+
+	if (cookieSecret !== moderationPlatform.secret) {
+		cookieSecret = undefined;
+	} else {
+		cookies.delete('secret', {
+			path: '/',
+			httpOnly: true,
+			secure: !dev,
+			sameSite: 'strict'
+		});
+	}
+
 	return {
 		organization,
 		editPlatformForm: await superValidate(
 			{
 				platformName: moderationPlatform.name,
-				callbackUrl: moderationPlatform.callbackUrl,
-				secret: moderationPlatform.secret
+				callbackUrl: moderationPlatform.callbackUrl
 			},
 			zod(editFormSchema)
 		),
+		platformId: moderationPlatform.id,
+		secret: cookieSecret,
 		invitePlatformForm: await superValidate(zod(inviteFormSchema)),
 		deleteModeratorForm: await superValidate(zod(deleteModeratorFormSchema)),
 		moderators,
@@ -126,7 +141,7 @@ export const actions: Actions = {
 			.bind(moderationPlatform.id)
 			.run();
 
-		redirect(303, '/dashboard');
+		redirect(303, '/dashboard/organization/' + moderationPlatform.organizationId);
 	},
 	regenerate: async (event) => {
 		const { locals, params, platform } = event;
@@ -144,6 +159,13 @@ export const actions: Actions = {
 				form
 			});
 		}
+
+		event.cookies.set('secret', secret, {
+			path: '/',
+			httpOnly: true,
+			secure: !dev,
+			sameSite: 'strict'
+		});
 
 		return {
 			...form,

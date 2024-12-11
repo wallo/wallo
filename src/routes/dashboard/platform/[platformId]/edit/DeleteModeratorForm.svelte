@@ -22,8 +22,8 @@
 	<form class="flex gap-2" method="POST">
 		<Form.Field {form} name="id" class="hidden">
 			<Form.Control>
-				{#snippet children({ attrs })}
-					<Input {...attrs} bind:value={id} />
+				{#snippet children({ props })}
+					<Input {...props} bind:value={id} />
 				{/snippet}
 			</Form.Control>
 			<Form.FieldErrors />

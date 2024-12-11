@@ -5,7 +5,7 @@ import { canEnter } from './auth';
 import type { ColumnFiltersState, SortingState } from '@tanstack/table-core';
 
 export const load = (async ({ platform, url, locals, params }) => {
-	await canEnter(params, platform, locals);
+	const { moderationPlatform } = await canEnter(params, platform, locals);
 
 	const order = restrict(url.searchParams.get('order'), ['ASC', 'DESC']) ?? 'DESC';
 
@@ -28,9 +28,9 @@ export const load = (async ({ platform, url, locals, params }) => {
 
 	const count =
 		(await platform?.env.DB.prepare(
-			`SELECT COUNT(*) AS total FROM cases WHERE relevantId LIKE ? ${whereClauses}`
+			`SELECT COUNT(*) AS total FROM cases WHERE relevantId LIKE ? AND platformId = ? ${whereClauses}`
 		)
-			.bind(`%${idLike}%`)
+			.bind(`%${idLike}%`, moderationPlatform.id)
 			.first<number>('total')) ?? 0;
 
 	const pageSize = Math.max(Math.floor(Number(url.searchParams.get('pageSize'))), 10);
@@ -57,9 +57,9 @@ export const load = (async ({ platform, url, locals, params }) => {
 	const relevantCases = (
 		(
 			await platform?.env.DB.prepare(
-				`SELECT * FROM cases WHERE relevantId LIKE ? ${whereClauses} ORDER BY ${column} ${order} LIMIT ${pageSize} OFFSET ${pageIndex * pageSize}`
+				`SELECT * FROM cases WHERE relevantId LIKE ? AND platformId = ? ${whereClauses} ORDER BY ${column} ${order} LIMIT ${pageSize} OFFSET ${pageIndex * pageSize}`
 			)
-				.bind(`%${idLike}%`)
+				.bind(`%${idLike}%`, moderationPlatform.id)
 				.all<CaseDB>()
 		)?.results ?? []
 	).map(fixCase);

@@ -23,8 +23,8 @@
 	<form class="flex gap-2" method="POST">
 		<Form.Field {form} name="email" class="flex-1">
 			<Form.Control>
-				{#snippet children({ attrs })}
-					<Input {...attrs} bind:value={$formData.email} placeholder="Email" />
+				{#snippet children({ props })}
+					<Input {...props} bind:value={$formData.email} placeholder="Email" />
 				{/snippet}
 			</Form.Control>
 			<!-- <Form.Description>This is your organization display name.</Form.Description> -->

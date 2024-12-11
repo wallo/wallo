@@ -21,16 +21,16 @@
 <form method="POST" action="?/action" class="flex-1">
 	<Form.Field {form} name="id" class="hidden">
 		<Form.Control>
-			{#snippet children({ attrs })}
-				<Input {...attrs} value={action.id} />
+			{#snippet children({ props })}
+				<Input {...props} value={action.id} />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
 	<Form.Field {form} name="display" class="hidden">
 		<Form.Control>
-			{#snippet children({ attrs })}
-				<Input {...attrs} value={action.display} />
+			{#snippet children({ props })}
+				<Input {...props} value={action.display} />
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />

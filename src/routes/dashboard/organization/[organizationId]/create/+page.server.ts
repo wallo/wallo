@@ -5,6 +5,7 @@ import { formSchema } from './schema';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Orgnaization } from '$lib/types';
 import { generateRandomHex } from '$lib/crypto';
+import { dev } from '$app/environment';
 
 export const load = (async () => {
 	return {
@@ -50,6 +51,13 @@ export const actions: Actions = {
 			.bind(platformId, params.organizationId, platformName, callbackUrl, secret)
 			.run();
 
-		redirect(303, `/dashboard/platform/${platformId}`);
+		await event.cookies.set('secret', secret, {
+			path: '/',
+			httpOnly: true,
+			secure: !dev,
+			sameSite: 'strict'
+		});
+
+		redirect(303, `/dashboard/platform/${platformId}/edit`);
 	}
 };

@@ -24,9 +24,9 @@
 <form class="flex max-w-screen-md flex-col gap-2" method="POST">
 	<Form.Field {form} name="organization_name">
 		<Form.Control>
-			{#snippet children({ attrs })}
+			{#snippet children({ props })}
 				<Form.Label>Organization Name</Form.Label>
-				<Input {...attrs} bind:value={$formData.organization_name} />
+				<Input {...props} bind:value={$formData.organization_name} />
 			{/snippet}
 		</Form.Control>
 		<!-- <Form.Description>This is your organization display name.</Form.Description> -->
