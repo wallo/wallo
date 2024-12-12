@@ -226,13 +226,18 @@
 		</Table.Header>
 		<Table.Body>
 			{#each table.getRowModel().rows as row (row.id)}
-				<Table.Row data-state={row.getIsSelected() && 'selected'}>
-					{#each row.getVisibleCells() as cell (cell.id)}
-						<Table.Cell>
-							<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-						</Table.Cell>
-					{/each}
-				</Table.Row>
+				<a
+					href={`/dashboard/platform/${$page.params.platformId}/case/${row.original.kind}/${row.original.relevantId}`}
+					class="contents"
+				>
+					<Table.Row data-state={row.getIsSelected() && 'selected'}>
+						{#each row.getVisibleCells() as cell (cell.id)}
+							<Table.Cell>
+								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
+							</Table.Cell>
+						{/each}
+					</Table.Row>
+				</a>
 			{:else}
 				<Table.Row>
 					<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
