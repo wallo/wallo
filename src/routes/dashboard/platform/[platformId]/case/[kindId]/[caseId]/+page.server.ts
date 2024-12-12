@@ -7,8 +7,8 @@ import {
 	type DiscussionAction,
 	type PlatformAction
 } from '$lib/types';
-import { fail } from '@sveltejs/kit';
-import { canEnter } from '../../../auth';
+import { error, fail, isActionFailure } from '@sveltejs/kit';
+import { canEnter, canEnterAction } from '../../../auth';
 import type { Actions, PageServerLoad } from './$types';
 import { commentFormSchema } from './comment-schema';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -26,7 +26,7 @@ export const load = (async ({ params, platform, locals }) => {
 		.bind(moderationPlatform.id, params.caseId, params.kindId)
 		.first<CaseDB>();
 
-	if (!moderationCase) throw fail(404);
+	if (!moderationCase) error(404, 'Case not found in database');
 
 	const url = new URL(moderationPlatform.callbackUrl);
 
@@ -39,7 +39,7 @@ export const load = (async ({ params, platform, locals }) => {
 		params.caseId
 	);
 
-	if (subject.valid === false) throw fail(subject.error.code);
+	if (subject.valid === false) error(subject.error.code, subject.error.message);
 
 	const actions = (
 		(
@@ -66,11 +66,13 @@ export const load = (async ({ params, platform, locals }) => {
 
 export const actions: Actions = {
 	comment: async (event) => {
-		const { moderationPlatform, userId } = await canEnter(
-			event.params,
-			event.platform,
-			event.locals
-		);
+		const failureOrInfo = await canEnterAction(event.params, event.platform, event.locals);
+
+		if (isActionFailure(failureOrInfo)) {
+			return failureOrInfo;
+		}
+
+		const { moderationPlatform, userId } = failureOrInfo;
 
 		const form = await superValidate(event, zod(commentFormSchema));
 		if (!form.valid) {
@@ -97,11 +99,13 @@ export const actions: Actions = {
 		return { success: true };
 	},
 	action: async (event) => {
-		const { moderationPlatform, userId } = await canEnter(
-			event.params,
-			event.platform,
-			event.locals
-		);
+		const failureOrInfo = await canEnterAction(event.params, event.platform, event.locals);
+
+		if (isActionFailure(failureOrInfo)) {
+			return failureOrInfo;
+		}
+
+		const { moderationPlatform, userId } = failureOrInfo;
 
 		const form = await superValidate(event, zod(actionFormSchema));
 		if (!form.valid) {
