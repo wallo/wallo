@@ -25,9 +25,15 @@
 			{:else if media.kind === 'image'}
 				<img src={media.url} alt={media.alt} />
 			{:else if media.kind === 'video'}
+				<!-- svelte-ignore a11y_media_has_caption -->
 				<video src={media.url} controls>
 					{#each media.captions ?? [] as caption}
-						<track kind="captions" src={caption.url} srclang={caption.lang} label={caption.label} />
+						<track
+							kind="captions"
+							src={caption.url}
+							srclang={caption.srclang}
+							label={caption.label}
+						/>
 					{/each}
 				</video>
 			{/if}

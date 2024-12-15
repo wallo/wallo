@@ -3,9 +3,10 @@ name = "wallo"
 compatibility_date = "2024-10-11"
 main = ".svelte-kit/cloudflare/_worker.js"
 assets = { directory = ".svelte-kit/cloudflare", binding = "ASSETS" }
+compatibility_flags = ["nodejs_compat"]
 
 [observability]
-enabled = true
+enabled = false
 
 
 [[d1_databases]]
