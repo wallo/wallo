@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Orgnaization } from '$lib/types';
-import { generateRandomHex } from '$lib/crypto';
+import { generateApiSecret, generateId } from '$lib/crypto';
 import { dev } from '$app/environment';
 
 export const load = (async () => {
@@ -39,11 +39,11 @@ export const actions: Actions = {
 		if (organization === null) return fail(403);
 
 		const { callbackUrl, platformName } = form.data;
-		const secret = generateRandomHex(40);
+		const secret = generateApiSecret();
 
 		if (!platformName) return fail(400, { organizationName: platformName, missing: true });
 
-		const platformId = crypto.randomUUID();
+		const platformId = 'plat_' + generateId();
 
 		await platform?.env.DB.prepare(
 			'INSERT INTO platforms (id, organizationId, name, callbackUrl, secret) VALUES (?, ?, ?, ?, ?)'

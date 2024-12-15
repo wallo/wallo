@@ -19,7 +19,6 @@
 </script>
 
 <div>
-	<h3 class="my-3 flex text-lg font-extrabold">Add Invitation</h3>
 	<form class="flex gap-2" method="POST">
 		<Form.Field {form} name="email" class="flex-1">
 			<Form.Control>
@@ -31,7 +30,7 @@
 			<Form.FieldErrors />
 		</Form.Field>
 		<div class="flex gap-2">
-			<Form.Button formaction="?/invite">Invite</Form.Button>
+			<Form.Button formaction="?/invite">Add Invite</Form.Button>
 		</div>
 	</form>
 </div>

@@ -4,7 +4,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { editFormSchema } from './edit-schema';
 import type { Orgnaization, Platform } from '$lib/types';
-import { generateRandomHex } from '$lib/crypto';
+import { generateApiSecret } from '$lib/crypto';
 import { inviteFormSchema } from './invite-moderator';
 import { deleteModeratorFormSchema } from './delete-moderator';
 import { dev } from '$app/environment';
@@ -147,7 +147,7 @@ export const actions: Actions = {
 		const { locals, params, platform } = event;
 		const { moderationPlatform } = await isAuth({ locals, platform, params });
 
-		const secret = generateRandomHex(40);
+		const secret = generateApiSecret();
 
 		await platform?.env.DB.prepare(`UPDATE platforms SET secret = ? WHERE id = ?`)
 			.bind(secret, moderationPlatform.id)

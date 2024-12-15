@@ -3,6 +3,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
+import { generateId } from '$lib/crypto';
 
 export const load = (async () => {
 	return {
@@ -27,7 +28,7 @@ export const actions: Actions = {
 
 		const organizationName = form.data.organization_name;
 
-		const organizationId = crypto.randomUUID();
+		const organizationId = 'org_' + generateId();
 
 		await platform?.env.DB.prepare('INSERT INTO organizations (id, name, adminId) VALUES (?, ?, ?)')
 			.bind(organizationId, organizationName, session.user.id)

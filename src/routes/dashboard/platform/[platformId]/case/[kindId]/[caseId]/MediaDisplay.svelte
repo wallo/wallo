@@ -25,7 +25,11 @@
 			{:else if media.kind === 'image'}
 				<img src={media.url} alt={media.alt} />
 			{:else if media.kind === 'video'}
-				<video src={media.url} controls></video>
+				<video src={media.url} controls>
+					{#each media.captions ?? [] as caption}
+						<track kind="captions" src={caption.url} srclang={caption.lang} label={caption.label} />
+					{/each}
+				</video>
 			{/if}
 		</Card>
 	</div>

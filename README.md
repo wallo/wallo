@@ -136,6 +136,16 @@ type Media =
 			kind: 'video';
 			url: string;
 			tag?: string;
+
+	| {
+			kind: 'video';
+			url: string;
+			tag?: string;
+			captions?: {
+				url: string;
+				srclang?: string;
+				label?: string;
+			}[];
 	  };
 ```
 

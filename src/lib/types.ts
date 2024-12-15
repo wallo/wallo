@@ -1,3 +1,5 @@
+type Modify<T, R> = Omit<T, keyof R> & R;
+
 export type Media =
 	| {
 			kind: 'text';
@@ -14,6 +16,11 @@ export type Media =
 			kind: 'video';
 			url: string;
 			tag?: string;
+			captions?: {
+				url: string;
+				srclang?: string;
+				label?: string;
+			}[];
 	  };
 
 export type AccountId = string;
@@ -111,10 +118,22 @@ export type Platform = {
 	secret: string;
 };
 
-export type Orgnaization = {
+export type OrgnaizationDB = {
 	id: string;
 	name: string;
+	createdAt: string;
+	updatedAt: string;
 };
+
+export type Orgnaization = Modify<OrgnaizationDB, { createdAt: Date; updatedAt: Date }>;
+
+export function fixOrganization(organization: OrgnaizationDB): Orgnaization {
+	return {
+		...organization,
+		createdAt: new Date(organization.createdAt),
+		updatedAt: new Date(organization.updatedAt)
+	};
+}
 
 export type CaseDB = {
 	platformId: PlatformId;
@@ -124,8 +143,6 @@ export type CaseDB = {
 	createdAt: string;
 	updatedAt: string;
 };
-
-type Modify<T, R> = Omit<T, keyof R> & R;
 
 export type Case = Modify<
 	CaseDB,

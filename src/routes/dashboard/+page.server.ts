@@ -14,33 +14,56 @@ export const load = (async (event) => {
 
 	const organizationsAdminOf =
 		(
-			await event.platform?.env.DB.prepare('SELECT * FROM organizations WHERE adminId = ?')
+			await event.platform?.env.DB.prepare(
+				`SELECT o.*, COUNT(p.id) as platformCount
+				FROM organizations o
+				LEFT JOIN platforms p ON o.id = p.organizationId
+				WHERE o.adminId = ?
+				GROUP BY o.id, o.name, o.adminId, o.createdAt, o.updatedAt`
+			)
 				.bind(userId)
-				.all<Orgnaization>()
+				.all<Orgnaization & { platformCount: number }>()
 		)?.results ?? [];
 
 	const platformsModeratorOf = (
 		(
 			await event.platform?.env.DB.prepare(
-				'SELECT p.* FROM platforms p JOIN platformModerators pm ON p.id = pm.platformId WHERE pm.userId = ?'
+				`SELECT p.*, COUNT(c.relevantId) as caseCount
+				FROM platforms p 
+				JOIN platformModerators pm ON p.id = pm.platformId
+				LEFT JOIN cases c ON p.id = c.platformId
+				WHERE pm.userId = ?
+				GROUP BY p.id, p.organizationId, p.name, p.callbackUrl, p.secret`
 			)
 				.bind(userId)
-				.all<Platform>()
+				.all<Platform & { caseCount: number }>()
 		)?.results ?? []
-	).map((p) => ({ id: p.id, name: p.name, organizationId: p.organizationId }));
+	).map((p) => ({
+		id: p.id,
+		name: p.name,
+		organizationId: p.organizationId,
+		caseCount: p.caseCount
+	}));
 
 	const platformsAdminOf = (
 		(
 			await event.platform?.env.DB.prepare(
-				`SELECT p.*
+				`SELECT p.*, COUNT(c.relevantId) as caseCount
 				FROM organizations o
 				JOIN platforms p ON o.id = p.organizationId
-				WHERE o.adminId = ?`
+				LEFT JOIN cases c ON p.id = c.platformId
+				WHERE o.adminId = ?
+				GROUP BY p.id, p.organizationId, p.name, p.callbackUrl, p.secret`
 			)
 				.bind(userId)
-				.all<Platform>()
+				.all<Platform & { caseCount: number }>()
 		)?.results ?? []
-	).map((p) => ({ id: p.id, name: p.name, organizationId: p.organizationId }));
+	).map((p) => ({
+		id: p.id,
+		name: p.name,
+		organizationId: p.organizationId,
+		caseCount: p.caseCount
+	}));
 
 	const email = session?.user?.email;
 

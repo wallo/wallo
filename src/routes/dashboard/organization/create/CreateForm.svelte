@@ -4,6 +4,7 @@
 	import { formSchema, type FormSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import * as Card from '$ui/card';
 
 	interface Props {
 		data: SuperValidated<Infer<FormSchema>>;
@@ -18,19 +19,28 @@
 	const { form: formData } = form;
 </script>
 
-<h1 class="my-3 flex max-w-screen-sm place-content-between text-2xl font-extrabold">
-	Create Organization
-</h1>
-<form class="flex max-w-screen-md flex-col gap-2" method="POST">
-	<Form.Field {form} name="organization_name">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Organization Name</Form.Label>
-				<Input {...props} bind:value={$formData.organization_name} />
-			{/snippet}
-		</Form.Control>
-		<!-- <Form.Description>This is your organization display name.</Form.Description> -->
-		<Form.FieldErrors />
-	</Form.Field>
-	<Form.Button>Submit</Form.Button>
-</form>
+<div class="flex h-screen w-full items-center justify-center">
+	<Card.Root class="mx-auto max-w-screen-sm">
+		<Card.Header>
+			<Card.Title>Create Organization</Card.Title>
+			<Card.Description>
+				Organization represents a group of platforms managed by a single entity.
+			</Card.Description>
+		</Card.Header>
+		<Card.Content>
+			<form class="max-w-screen-md space-y-5" method="POST">
+				<Form.Field {form} name="organization_name">
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Organization Name</Form.Label>
+							<Input {...props} bind:value={$formData.organization_name} />
+						{/snippet}
+					</Form.Control>
+					<Form.Description>This is your organization display name.</Form.Description>
+					<Form.FieldErrors />
+				</Form.Field>
+				<Form.Button class="w-full">Create</Form.Button>
+			</form>
+		</Card.Content>
+	</Card.Root>
+</div>

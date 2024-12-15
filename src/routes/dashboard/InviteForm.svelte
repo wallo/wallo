@@ -18,8 +18,8 @@
 	});
 </script>
 
-<div>
-	<form class="flex gap-2" method="POST">
+<div class="flex justify-end gap-4">
+	<form class="contents" method="POST">
 		<Form.Field {form} name="platformId" class="hidden">
 			<Form.Control>
 				{#snippet children({ props })}
@@ -28,13 +28,11 @@
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
-		<div class="flex gap-4">
-			<Form.Button size="icon" variant="destructive" formaction="?/deleteInvite">
-				<X />
-			</Form.Button>
-			<Form.Button size="icon" formaction="?/acceptInvite">
-				<Check />
-			</Form.Button>
-		</div>
+		<Form.Button variant="outline" formaction="?/deleteInvite">
+			<X /> Decline
+		</Form.Button>
+		<Form.Button formaction="?/acceptInvite">
+			<Check /> Accept
+		</Form.Button>
 	</form>
 </div>
