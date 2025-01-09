@@ -3,7 +3,6 @@
 
 	import * as Table from '$ui/table';
 	import { createSvelteTable, FlexRender, renderComponent } from '$ui/data-table';
-	import { page } from '$app/stores';
 	import { Button } from '$ui/button';
 	import { goto } from '$app/navigation';
 	import {
@@ -18,6 +17,7 @@
 	import { Label } from '$ui/label';
 	import { Input } from '$ui/input';
 	import { Search } from 'lucide-svelte';
+	import { page } from '$app/state';
 
 	interface Props {
 		data: Case[];
@@ -84,14 +84,14 @@
 		enableMultiRemove: false,
 		onPaginationChange: (updater) => {
 			const newPagination = typeof updater === 'function' ? updater(pagination) : updater;
-			const q = new URLSearchParams($page.url.searchParams);
+			const q = new URLSearchParams(page.url.searchParams);
 			q.set('pageIndex', String(newPagination.pageIndex));
 			q.set('pageSize', String(newPagination.pageSize));
 			goto(`?${q}`, { noScroll: true });
 		},
 		onSortingChange: (updater) => {
 			const newSorting = typeof updater === 'function' ? updater(sorting) : updater;
-			const q = new URLSearchParams($page.url.searchParams);
+			const q = new URLSearchParams(page.url.searchParams);
 			if (newSorting.length > 0) {
 				q.set('order', newSorting[0].desc ? 'DESC' : 'ASC');
 				q.set('column', newSorting[0].id);
@@ -103,7 +103,7 @@
 		},
 		onColumnFiltersChange: (updater) => {
 			const newColumnFilters = typeof updater === 'function' ? updater(columnFilters) : updater;
-			const q = new URLSearchParams($page.url.searchParams);
+			const q = new URLSearchParams(page.url.searchParams);
 			for (const id of ['status', 'kind', 'relevantId']) {
 				q.delete(id);
 			}
@@ -227,7 +227,7 @@
 		<Table.Body>
 			{#each table.getRowModel().rows as row (row.id)}
 				<a
-					href={`/dashboard/platform/${$page.params.platformId}/case/${row.original.kind}/${row.original.relevantId}`}
+					href={`/dashboard/platform/${page.params.platformId}/case/${row.original.kind}/${row.original.relevantId}`}
 					class="contents"
 				>
 					<Table.Row data-state={row.getIsSelected() && 'selected'}>

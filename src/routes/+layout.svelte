@@ -1,22 +1,20 @@
 <script lang="ts">
 	import { ModeWatcher } from 'mode-watcher';
-	import { navigating, page } from '$app/stores';
 	import '../app.css';
 	import '@fontsource/geist-sans/400.css';
 	import '@fontsource/geist-sans/500.css';
 	import '@fontsource/geist-sans/700.css';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { Loader2 } from 'lucide-svelte';
-	import { derived } from 'svelte/store';
+	import { navigating, page } from '$app/state';
 
 	interface Props {
 		children?: import('svelte').Snippet;
 	}
 
 	let { children }: Props = $props();
-
 	let mounting = $state(true);
-	let navigatingBoolean = derived(navigating, ($navigating) => $navigating !== null);
+	let navigatingBoolean = $derived(navigating.type !== null);
 
 	const startTimer = (f: () => void, ms: number) => {
 		let timer = setTimeout(f, ms);
@@ -31,16 +29,18 @@
 		// left empty for a reason
 	});
 
-	navigatingBoolean.subscribe((value) => {
-		if (value) {
-			if ($navigatingBoolean == false) {
+	$effect(() => {
+		if (navigatingBoolean) {
+			untrack(() => {
 				stopTimer = startTimer(() => {
 					longNavigating = true;
 				}, 100);
-			}
+			});
 		} else {
-			stopTimer();
-			longNavigating = false;
+			untrack(() => {
+				stopTimer();
+				longNavigating = false;
+			});
 		}
 	});
 
@@ -57,8 +57,8 @@
 		content="The moderation platform for the web. Protect your community from harmful content."
 	/>
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content={$page.url.toString()} />
-	<meta property="og:image" content="{$page.url.origin}/wallo-thumbnail.png" />
+	<meta property="og:url" content={page.url.toString()} />
+	<meta property="og:image" content="{page.url.origin}/wallo-thumbnail.png" />
 	<meta property="og:site_name" content="Wallo" />
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>

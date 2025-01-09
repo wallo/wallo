@@ -6,16 +6,16 @@
 	import type { PossibleAction } from '$lib/types';
 	import Input from '$ui/input/input.svelte';
 
-	const form = superForm(data, {
-		validators: zodClient(actionFormSchema)
-	});
-
 	interface Props {
 		data: SuperValidated<Infer<ActionFormSchema>>;
 		action: PossibleAction;
 	}
 
 	let { data, action }: Props = $props();
+
+	const form = superForm(data, {
+		validators: zodClient(actionFormSchema)
+	});
 </script>
 
 <form method="POST" action="?/action" class="flex-1">
