@@ -17,7 +17,9 @@
 	import { Label } from '$ui/label';
 	import { Input } from '$ui/input';
 	import { Search } from 'lucide-svelte';
-	import { page } from '$app/state';
+	import { navigating, page } from '$app/state';
+	import { onMount, untrack } from 'svelte';
+	import LoadingIcon from '$lib/loading-icon.svelte';
 
 	interface Props {
 		data: Case[];
@@ -28,6 +30,46 @@
 	}
 
 	let { data, pagination, count, sorting, columnFilters }: Props = $props();
+
+	let mounting = $state(true);
+	let navigatingBoolean = $derived(
+		navigating.type !== null &&
+			navigating.from?.route.id &&
+			navigating.to?.route.id &&
+			navigating.from.route.id === navigating.to.route.id
+	);
+
+	const startTimer = (f: () => void, ms: number) => {
+		let timer = setTimeout(f, ms);
+		return () => {
+			clearTimeout(timer);
+		};
+	};
+
+	let longNavigating = $state(false);
+
+	let stopTimer = $state(() => {
+		// left empty for a reason
+	});
+
+	$effect(() => {
+		if (navigatingBoolean) {
+			untrack(() => {
+				stopTimer = startTimer(() => {
+					longNavigating = true;
+				}, 100);
+			});
+		} else {
+			untrack(() => {
+				stopTimer();
+				longNavigating = false;
+			});
+		}
+	});
+
+	onMount(() => {
+		mounting = false;
+	});
 
 	const columns: ColumnDef<Case>[] = [
 		{
@@ -225,24 +267,35 @@
 			{/each}
 		</Table.Header>
 		<Table.Body>
-			{#each table.getRowModel().rows as row (row.id)}
-				<a
-					href={`/dashboard/platform/${page.params.platformId}/case/${row.original.kind}/${row.original.relevantId}`}
-					class="contents"
-				>
-					<Table.Row data-state={row.getIsSelected() && 'selected'}>
-						{#each row.getVisibleCells() as cell (cell.id)}
-							<Table.Cell>
-								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-							</Table.Cell>
-						{/each}
-					</Table.Row>
-				</a>
-			{:else}
+			{#if mounting || longNavigating}
 				<Table.Row>
-					<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
+					<Table.Cell colspan={columns.length} class="h-[50vh]">
+						<div class="flex w-full flex-col items-center gap-2 opacity-50">
+							<LoadingIcon height="3em" width="3em" />
+							Loading...
+						</div>
+					</Table.Cell>
 				</Table.Row>
-			{/each}
+			{:else}
+				{#each table.getRowModel().rows as row (row.id)}
+					<a
+						href={`/dashboard/platform/${page.params.platformId}/case/${row.original.kind}/${row.original.relevantId}`}
+						class="contents"
+					>
+						<Table.Row data-state={row.getIsSelected() && 'selected'}>
+							{#each row.getVisibleCells() as cell (cell.id)}
+								<Table.Cell>
+									<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
+								</Table.Cell>
+							{/each}
+						</Table.Row>
+					</a>
+				{:else}
+					<Table.Row>
+						<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
+					</Table.Row>
+				{/each}
+			{/if}
 		</Table.Body>
 	</Table.Root>
 </div>

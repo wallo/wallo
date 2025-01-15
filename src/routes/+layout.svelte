@@ -5,8 +5,8 @@
 	import '@fontsource/geist-sans/500.css';
 	import '@fontsource/geist-sans/700.css';
 	import { onMount, untrack } from 'svelte';
-	import { Loader2 } from 'lucide-svelte';
 	import { navigating, page } from '$app/state';
+	import LoadingIcon from '$lib/loading-icon.svelte';
 
 	interface Props {
 		children?: import('svelte').Snippet;
@@ -14,7 +14,14 @@
 
 	let { children }: Props = $props();
 	let mounting = $state(true);
-	let navigatingBoolean = $derived(navigating.type !== null);
+	let navigatingBoolean = $derived(
+		navigating.type !== null &&
+			!(
+				navigating.from?.route.id &&
+				navigating.to?.route.id &&
+				navigating.from.route.id === navigating.to.route.id
+			)
+	);
 
 	const startTimer = (f: () => void, ms: number) => {
 		let timer = setTimeout(f, ms);
@@ -66,8 +73,9 @@
 <ModeWatcher />
 {#if mounting || longNavigating}
 	<div class="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center">
-		<div class="flex items-center">
-			<Loader2 class="h-10 w-10 animate-spin text-primary/60"></Loader2>
+		<div class="flex flex-col items-center gap-2 opacity-50">
+			<LoadingIcon width="3em" height="3em" />
+			Loading...
 		</div>
 	</div>
 {:else}
