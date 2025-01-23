@@ -43,7 +43,7 @@
 								<Badge>Admin</Badge>
 							</Card.Header>
 							<Card.Footer>
-								<div class="flex items-center space-x-2 text-muted-foreground">
+								<div class="text-muted-foreground flex items-center space-x-2">
 									<Layout class="h-4 w-4" />
 									<span class="text-sm">{organization.platformCount} platforms</span>
 								</div>
@@ -88,7 +88,7 @@
 								>
 							</Card.Header>
 							<Card.Content class="pt-0">
-								<div class="flex items-center space-x-2 text-muted-foreground">
+								<div class="text-muted-foreground flex items-center space-x-2">
 									<MessageSquare class="h-4 w-4" />
 									<span class="text-sm">{platform.caseCount} cases</span>
 								</div>

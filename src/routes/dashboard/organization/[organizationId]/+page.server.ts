@@ -5,7 +5,7 @@ import type { PageServerLoad } from './$types';
 export const load = (async ({ params, platform, locals }) => {
 	const session = await locals.auth();
 	const userId = session?.user?.id;
-	if (!userId) redirect(303, '/auth/signin');
+	if (!userId) redirect(303, '/login');
 	const { organizationId } = params;
 
 	const organization =

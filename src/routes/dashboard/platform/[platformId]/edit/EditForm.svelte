@@ -28,7 +28,7 @@
 		<Card.Description>Edit your platform details</Card.Description>
 	</Card.Header>
 	<Card.Content>
-		<form class="flex max-w-screen-md flex-col gap-5" method="POST">
+		<form class="flex max-w-(--breakpoint-md) flex-col gap-5" method="POST">
 			<Separator />
 			<Form.Field {form} name="platformName">
 				<Form.Control>
@@ -43,7 +43,7 @@
 			<div class="space-y-2">
 				<Label>Platform ID</Label>
 				<Input readonly value={platformId} disabled />
-				<p class="text-sm text-muted-foreground">
+				<p class="text-muted-foreground text-sm">
 					This is your platform ID. It is unique and cannot be changed.
 				</p>
 			</div>

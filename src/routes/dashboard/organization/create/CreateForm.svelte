@@ -20,7 +20,7 @@
 </script>
 
 <div class="flex h-screen w-full items-center justify-center">
-	<Card.Root class="mx-auto max-w-screen-sm">
+	<Card.Root class="mx-auto max-w-(--breakpoint-sm)">
 		<Card.Header>
 			<Card.Title>Create Organization</Card.Title>
 			<Card.Description>
@@ -28,7 +28,7 @@
 			</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form class="max-w-screen-md space-y-5" method="POST">
+			<form class="max-w-(--breakpoint-md) space-y-5" method="POST">
 				<Form.Field {form} name="organization_name">
 					<Form.Control>
 						{#snippet children({ props })}

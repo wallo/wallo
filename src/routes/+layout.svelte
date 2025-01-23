@@ -72,7 +72,7 @@
 
 <ModeWatcher />
 {#if mounting || longNavigating}
-	<div class="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center">
+	<div class="fixed top-0 left-0 z-50 flex h-full w-full items-center justify-center">
 		<div class="flex flex-col items-center gap-2 opacity-50">
 			<LoadingIcon width="3em" height="3em" />
 			Loading...

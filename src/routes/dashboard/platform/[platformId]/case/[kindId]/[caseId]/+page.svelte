@@ -17,7 +17,7 @@
 	let { data }: Props = $props();
 </script>
 
-<h1 class="my-3 flex max-w-screen-md place-content-between text-2xl font-extrabold">
+<h1 class="my-3 flex max-w-(--breakpoint-md) place-content-between text-2xl font-extrabold">
 	Take Moderation Action
 </h1>
 

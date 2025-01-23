@@ -30,7 +30,7 @@
 					It will not be shown again. If you lose it, you will have to regenerate a new one.
 					<div class="my-2 flex gap-2">
 						<div
-							class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-secondary-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+							class="border-input bg-background text-secondary-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
 						>
 							{secret}
 						</div>
@@ -71,9 +71,9 @@
 								<Avatar.Fallback>{moderator.name}</Avatar.Fallback>
 							</Avatar.Root>
 							<div>
-								<p class="text-sm font-medium leading-none">{moderator.name}</p>
+								<p class="text-sm leading-none font-medium">{moderator.name}</p>
 								<p
-									class="max-w-40 overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-muted-foreground"
+									class="text-muted-foreground max-w-40 overflow-hidden text-sm text-ellipsis whitespace-nowrap"
 									title={moderator.email}
 								>
 									{moderator.email}
@@ -98,8 +98,8 @@
 					<div class="flex items-center justify-between space-x-4">
 						<div class="flex items-center space-x-4">
 							<div>
-								<p class="text-sm font-medium leading-none">{invitation}</p>
-								<p class="text-sm text-muted-foreground">Invited</p>
+								<p class="text-sm leading-none font-medium">{invitation}</p>
+								<p class="text-muted-foreground text-sm">Invited</p>
 							</div>
 						</div>
 						<DeleteInvitationForm data={data.invitePlatformForm} email={invitation} />

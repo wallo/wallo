@@ -16,7 +16,7 @@
 </script>
 
 <div class="border-b-2">
-	<header class="container flex max-w-screen-xl gap-2 py-2">
+	<header class="container flex max-w-(--breakpoint-xl) gap-2 py-2">
 		<nav class="contents">
 			<a class="me-auto flex items-center gap-1 text-3xl font-extrabold" href="/dashboard">
 				<Logo></Logo>
@@ -46,6 +46,6 @@
 		</DropdownMenu.Root>
 	</header>
 </div>
-<main class="container max-w-screen-xl py-2">
+<main class="container max-w-(--breakpoint-xl) py-2">
 	{@render children?.()}
 </main>

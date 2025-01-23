@@ -23,7 +23,7 @@ async function isAuth({
 }> {
 	const session = await locals.auth();
 	const userId = session?.user?.id;
-	if (!userId) redirect(303, '/auth/signin');
+	if (!userId) redirect(303, '/login');
 	const { platformId } = params;
 
 	const moderationPlatform = await platform?.env.DB.prepare(`SELECT * FROM platforms WHERE id = ?`)

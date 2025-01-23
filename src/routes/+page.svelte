@@ -74,9 +74,9 @@
 
 <div class="relative">
 	<header
-		class="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+		class="bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full backdrop-blur-sm"
 	>
-		<nav class="container flex max-w-screen-2xl items-center gap-2 py-2">
+		<nav class="container flex max-w-(--breakpoint-2xl) items-center gap-2 py-2">
 			<a class="flex items-center gap-1 text-2xl font-extrabold" href="/">
 				<Logo></Logo>
 				Wallo
@@ -95,7 +95,7 @@
 						size="sm"
 						variant="outline"
 						onclick={() =>
-							signIn('github', {
+							signIn(undefined, {
 								callbackUrl: '/dashboard'
 							})}>Login</Button
 					>
@@ -107,15 +107,15 @@
 		<section
 			class="flex flex-col items-center justify-center gap-2 py-8 pb-8 md:py-12 md:pb-8 lg:py-24 lg:pb-20"
 		>
-			<p class="rounded-lg bg-muted px-3 py-1 text-center text-sm font-medium">
+			<p class="bg-muted rounded-lg px-3 py-1 text-center text-sm font-medium">
 				Wallo is under active development
 			</p>
 			<h1
-				class="text-center text-3xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]"
+				class="text-center text-3xl leading-tight font-bold tracking-tighter md:text-6xl lg:leading-[1.1]"
 			>
 				Safeguard your online platform
 			</h1>
-			<p class="text-balance text-center text-lg text-muted-foreground sm:text-xl">
+			<p class="text-muted-foreground text-center text-lg text-balance sm:text-xl">
 				Moderate user-generated contents efficiently.
 			</p>
 			<div class="flex gap-4 py-4 md:pb-10">

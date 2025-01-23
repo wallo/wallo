@@ -52,7 +52,7 @@ export async function canEnter(
 
 	const userId = session?.user?.id;
 
-	if (!userId) redirect(303, '/auth/signin');
+	if (!userId) redirect(303, '/login');
 
 	const { platformId } = params;
 
@@ -68,7 +68,7 @@ export async function canEnter(
 			.bind(platformId, userId)
 			.first()) ?? null) !== null;
 
-	if (!moderationPlatform) error(404);
+	if (!moderationPlatform) error(404, 'Platform not found');
 
 	if (!isModerator) {
 		const isAdmin =

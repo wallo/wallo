@@ -14,7 +14,7 @@
 	let platforms = $derived(data.platforms);
 </script>
 
-<h1 class="my-5 flex max-w-screen-sm place-content-between text-4xl font-extrabold">
+<h1 class="my-5 flex max-w-(--breakpoint-sm) place-content-between text-4xl font-extrabold">
 	{data.organization.name}
 </h1>
 
@@ -36,7 +36,7 @@
 						<Card.Title class="text-lg font-medium">{platform.name}</Card.Title>
 					</Card.Header>
 					<Card.Content class="pt-0">
-						<div class="flex items-center space-x-2 text-muted-foreground">
+						<div class="text-muted-foreground flex items-center space-x-2">
 							<MessageSquare class="h-4 w-4" />
 							<span class="text-sm">{platform.caseCount} cases</span>
 						</div>
