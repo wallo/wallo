@@ -21,7 +21,7 @@
 </script>
 
 <div class="max-md:space-y-4 md:flex md:flex-row md:gap-4">
-	<div class="flex-1 space-y-2">
+	<div class="flex-3 space-y-2">
 		{#if (secret?.length ?? 0) > 0}
 			<Alert.Root variant="destructive">
 				<CircleAlert class="size-4" />
@@ -56,7 +56,7 @@
 		{/if}
 		<EditForm data={data.editPlatformForm} platformId={data.platformId} />
 	</div>
-	<div class="flex-3 space-y-2">
+	<div class="flex-1 space-y-2">
 		<Card.Root>
 			<Card.Header>
 				<Card.Title>Team Members</Card.Title>

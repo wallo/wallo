@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Building, Layout, MessageSquare } from 'lucide-svelte';
 	import Button from '$ui/button/button.svelte';
-	import { goto } from '$app/navigation';
 	import InviteForm from './InviteForm.svelte';
 	import * as Card from '$ui/card';
 	import { Badge } from '$ui/badge';
@@ -26,7 +25,7 @@
 		>
 			Organizations You Manage
 			{#if organizations.length}
-				<Button onclick={() => goto('/dashboard/organization/create')} class="ms-auto">
+				<Button href="/dashboard/organization/create" class="ms-auto">
 					Create New Organization
 				</Button>
 			{/if}
@@ -63,9 +62,7 @@
 						</Card.Description>
 					</Card.Header>
 					<Card.Content>
-						<Button onclick={() => goto('/dashboard/organization/create')}>
-							Create New Organization
-						</Button>
+						<Button href="/dashboard/organization/create">Create New Organization</Button>
 					</Card.Content>
 				</Card.Root>
 			{/each}

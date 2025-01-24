@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { Button } from '$ui/button';
 	import ThemeSwitch from '$ui/theme-switch/theme-switch.svelte';
 	import type { PageData } from './$types';
@@ -89,7 +88,7 @@
 			</div>
 			<div>
 				{#if data.session}
-					<Button size="sm" variant="outline" onclick={() => goto('/dashboard')}>Dashboard</Button>
+					<Button size="sm" variant="outline" href="/dashboard">Dashboard</Button>
 				{:else}
 					<Button
 						size="sm"
@@ -119,7 +118,7 @@
 				Moderate user-generated contents efficiently.
 			</p>
 			<div class="flex gap-4 py-4 md:pb-10">
-				<Button onclick={() => goto('/dashboard')}>Get Started</Button>
+				<Button href="/dashboard">Get Started</Button>
 				<Button variant="outline" href="https://gitlab.com/wallo-dev/wallo">Source Code</Button>
 			</div>
 		</section>
@@ -467,7 +466,7 @@ fetch(YOUR_PLATFORM, {
 						</Card.Description>
 					</Card.Content>
 					<Card.Footer>
-						<Button variant="outline" onclick={() => goto('/dashboard')}>Get Started</Button>
+						<Button variant="outline" href="/dashboard">Get Started</Button>
 					</Card.Footer>
 				</Card.Root>
 				<Card.Root>

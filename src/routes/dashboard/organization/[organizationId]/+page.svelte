@@ -3,7 +3,6 @@
 	import * as Card from '$ui/card';
 	import { Layout, MessageSquare } from 'lucide-svelte';
 	import type { PageData } from './$types';
-	import { goto } from '$app/navigation';
 
 	interface Props {
 		data: PageData;
@@ -21,7 +20,7 @@
 <h2 class="my-3 flex flex-wrap place-content-between items-center gap-2 text-2xl font-extrabold">
 	Platforms in {data.organization.name}
 	{#if platforms.length}
-		<Button onclick={() => goto('/dashboard/platform/create')} class="ms-auto">
+		<Button href="/dashboard/organization/{data.organization.id}/create" class="ms-auto">
 			Create New Platform
 		</Button>
 	{/if}
@@ -56,7 +55,9 @@
 				</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				<Button onclick={() => goto('/dashboard/platform/create')}>Create New Platform</Button>
+				<Button href="/dashboard/organization/{data.organization.id}/create">
+					Create New Platform
+				</Button>
 			</Card.Content>
 		</Card.Root>
 	{/each}
