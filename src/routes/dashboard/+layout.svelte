@@ -15,7 +15,7 @@
 	let { data, children }: Props = $props();
 </script>
 
-<div class="border-b-2">
+<div class="border-b">
 	<header class="container flex max-w-(--breakpoint-xl) gap-2 py-2">
 		<nav class="contents">
 			<a class="me-auto flex items-center gap-1 text-3xl font-extrabold" href="/dashboard">
