@@ -3,20 +3,20 @@ import type { RouteParams } from './$types';
 import { fixCase, type CaseDB } from '$lib/types';
 
 export async function redirectMe(
-	userId: string,
-	{
-		params,
-		platform
-	}: {
-		params: RouteParams;
-		platform: Readonly<App.Platform> | undefined;
-		locals: App.Locals;
-	}
+    userId: string,
+    {
+        params,
+        platform
+    }: {
+        params: RouteParams;
+        platform: Readonly<App.Platform> | undefined;
+        locals: App.Locals;
+    }
 ) {
-	const { platformId } = params;
+    const { platformId } = params;
 
-	await platform?.env.DB.prepare(
-		`UPDATE cases
+    await platform?.env.DB.prepare(
+        `UPDATE cases
         SET assignedTo = ?1,
             assignedAt = datetime('now')
         WHERE (cases.platformId, cases.relevantId, cases.kind) IN (
@@ -48,26 +48,26 @@ export async function redirectMe(
                 cases.assignedAt ASC
             LIMIT 1
         )`
-	)
-		.bind(userId, platformId)
-		.run();
+    )
+        .bind(userId, platformId)
+        .run();
 
-	const caseDB = await platform?.env.DB.prepare(
-		`SELECT * FROM cases
+    const caseDB = await platform?.env.DB.prepare(
+        `SELECT * FROM cases
         WHERE platformId = ?1
             AND assignedTo = ?2
             AND status = 'unresolved'
         LIMIT 1`
-	)
-		.bind(platformId, userId)
-		.first<CaseDB>();
+    )
+        .bind(platformId, userId)
+        .first<CaseDB>();
 
-	if (!caseDB) redirect(303, `/dashboard/platform/${platformId}`);
+    if (!caseDB) redirect(303, `/dashboard/platform/${platformId}`);
 
-	const moderationCase = fixCase(caseDB);
+    const moderationCase = fixCase(caseDB);
 
-	redirect(
-		303,
-		`/dashboard/platform/${platformId}/case/${moderationCase.kind}/${moderationCase.relevantId}`
-	);
+    redirect(
+        303,
+        `/dashboard/platform/${platformId}/case/${moderationCase.kind}/${moderationCase.relevantId}`
+    );
 }

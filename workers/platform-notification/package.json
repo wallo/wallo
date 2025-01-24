@@ -1,0 +1,19 @@
+{
+    "name": "platform-notification",
+    "version": "0.0.0",
+    "private": true,
+    "engines": {
+        "bun": ">=1.2.0"
+    },
+    "scripts": {
+        "deploy": "wrangler deploy",
+        "dev": "wrangler dev",
+        "start": "wrangler dev",
+        "cf-typegen": "wrangler types"
+    },
+    "devDependencies": {
+        "@cloudflare/workers-types": "^4.20250121.0",
+        "typescript": "^5.7.3",
+        "wrangler": "^3.105.0"
+    }
+}

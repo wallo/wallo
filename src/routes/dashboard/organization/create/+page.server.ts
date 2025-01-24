@@ -6,34 +6,36 @@ import { formSchema } from './schema';
 import { generateId } from '$lib/crypto';
 
 export const load = (async () => {
-	return {
-		form: await superValidate(zod(formSchema))
-	};
+    return {
+        form: await superValidate(zod(formSchema))
+    };
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-	default: async (event) => {
-		const form = await superValidate(event, zod(formSchema));
-		if (!form.valid) {
-			return fail(400, {
-				form
-			});
-		}
+    default: async (event) => {
+        const form = await superValidate(event, zod(formSchema));
+        if (!form.valid) {
+            return fail(400, {
+                form
+            });
+        }
 
-		const { locals, platform } = event;
+        const { locals, platform } = event;
 
-		const session = await locals.auth();
+        const session = await locals.auth();
 
-		if (!session?.user?.id) return fail(401);
+        if (!session?.user?.id) return fail(401);
 
-		const organizationName = form.data.organization_name;
+        const organizationName = form.data.organization_name;
 
-		const organizationId = 'org_' + generateId();
+        const organizationId = 'org_' + generateId();
 
-		await platform?.env.DB.prepare('INSERT INTO organizations (id, name, adminId) VALUES (?, ?, ?)')
-			.bind(organizationId, organizationName, session.user.id)
-			.run();
+        await platform?.env.DB.prepare(
+            'INSERT INTO organizations (id, name, adminId) VALUES (?, ?, ?)'
+        )
+            .bind(organizationId, organizationName, session.user.id)
+            .run();
 
-		redirect(303, `/dashboard/organization/${organizationId}`);
-	}
+        redirect(303, `/dashboard/organization/${organizationId}`);
+    }
 };

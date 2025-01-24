@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const inviteFormSchema = z.object({
-	platformId: z.string()
+    platformId: z.string()
 });
 
 export type InviteFormSchema = typeof inviteFormSchema;
