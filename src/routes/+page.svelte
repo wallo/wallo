@@ -82,7 +82,7 @@
             </a>
             <div class="ms-auto flex">
                 <Button variant="ghost" size="icon" href="https://gitlab.com/wallo-dev/wallo">
-                    <GitlabIcon class="h-[1.2rem] w-[1.2rem]"/>
+                    <GitlabIcon class="h-[1.2rem] w-[1.2rem]" />
                 </Button>
                 <ThemeSwitch></ThemeSwitch>
             </div>
