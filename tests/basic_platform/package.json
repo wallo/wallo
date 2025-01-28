@@ -1,0 +1,14 @@
+{
+    "name": "basic_platform",
+    "module": "index.ts",
+    "type": "module",
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@faker-js/faker": "^9.4.0"
+    }
+}
