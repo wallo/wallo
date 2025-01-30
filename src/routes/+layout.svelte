@@ -6,7 +6,7 @@
     import '@fontsource/geist-sans/700.css';
     import { onMount, untrack } from 'svelte';
     import { navigating, page } from '$app/state';
-    import LoadingIcon from '$lib/loading-icon.svelte';
+    import LoadingIcon from '$lib/components/custom/media/loading-icon.svelte';
 
     interface Props {
         children?: import('svelte').Snippet;

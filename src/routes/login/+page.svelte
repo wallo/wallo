@@ -6,7 +6,7 @@
     import { Button } from '$ui/button';
     import * as Card from '$ui/card';
     import type { PageData } from './$types';
-    import Logo from '$lib/logo.svelte';
+    import Logo from '$lib/components/custom/media/logo.svelte';
     import { signIn } from '@auth/sveltekit/client';
     import { page } from '$app/state';
     import * as Alert from '$ui/alert';

@@ -3,7 +3,7 @@
     import ThemeSwitch from '$ui/theme-switch/theme-switch.svelte';
     import type { PageData } from './$types';
     import { signIn } from '@auth/sveltekit/client';
-    import Logo from '$lib/logo.svelte';
+    import Logo from '$lib/components/custom/media/logo.svelte';
     import * as Card from '$ui/card';
     import * as Avatar from '$ui/avatar';
     import Highlight from 'svelte-highlight';
@@ -15,6 +15,7 @@
     import { json } from 'svelte-highlight/languages';
     import MediaDisplay from './dashboard/platform/[platformId]/case/[kindId]/[caseId]/MediaDisplay.svelte';
     import { GitlabIcon } from 'lucide-svelte';
+    import FilterDemo from '$lib/components/custom/filter-demo/FilterDemo.svelte';
 
     interface Props {
         data: PageData;
@@ -102,45 +103,36 @@
             </div>
         </nav>
     </header>
+
     <main class="container flex flex-col items-center justify-center gap-4">
         <section
-            class="flex flex-col items-center justify-center gap-2 py-8 pb-8 md:py-12 md:pb-8 lg:py-24 lg:pb-20"
+            class="flex flex-col items-center justify-center gap-2 py-8 pb-8 md:py-12 md:pb-8 lg:py-24 lg:pb-0"
         >
-            <p class="bg-muted rounded-lg px-3 py-1 text-center text-sm font-medium">
-                Wallo is under active development
-            </p>
             <h1
-                class="text-center text-3xl leading-tight font-bold tracking-tighter md:text-6xl lg:leading-[1.1]"
+                class="max-w-[1000px] text-center text-3xl leading-tight font-bold tracking-tighter md:text-6xl lg:leading-[1.1]"
             >
-                Safeguard your online platform
+                The content moderation platform you've been waiting for.
             </h1>
-            <p class="text-muted-foreground text-center text-lg text-balance sm:text-xl">
-                Moderate user-generated contents efficiently.
+            <p class="text-muted-foreground text-center text-lg text-balance sm:text-2xl">
+                Ergonomic, AI Powered, Open-Source.
             </p>
-            <div class="flex gap-4 py-4 md:pb-10">
+            <div class="md-10 flex gap-4 py-4">
                 <Button href="/dashboard">Get Started</Button>
                 <Button variant="outline" href="https://gitlab.com/wallo-dev/wallo"
                     >Source Code</Button
                 >
             </div>
+            <p class="bg-muted mb-10 rounded-lg px-3 py-1 text-center text-sm font-medium">
+                Wallo is under active development
+            </p>
         </section>
-        <section class="my-8 flex flex-col items-center justify-center">
+        <FilterDemo></FilterDemo>
+        <section class="my-4 flex flex-col items-center justify-center">
             <h2 class="mb-8 text-3xl font-bold">Features</h2>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <Card.Root>
                     <Card.Header>
-                        <Card.Title>Open-Source</Card.Title>
-                    </Card.Header>
-                    <Card.Content>
-                        <Card.Description>
-                            Wallo is open-source, allowing for transparency and community
-                            contributions.
-                        </Card.Description>
-                    </Card.Content>
-                </Card.Root>
-                <Card.Root>
-                    <Card.Header>
-                        <Card.Title>Easy Integration</Card.Title>
+                        <Card.Title>Ergonomic</Card.Title>
                     </Card.Header>
                     <Card.Content>
                         <Card.Description>
@@ -150,11 +142,22 @@
                 </Card.Root>
                 <Card.Root>
                     <Card.Header>
-                        <Card.Title>Privacy Focused</Card.Title>
+                        <Card.Title>AI Powered</Card.Title>
                     </Card.Header>
                     <Card.Content>
                         <Card.Description>
-                            We only store the absolute necessary data to ensure user privacy.
+                            Coming Soon: Use Wallo AI to simplify moderation.
+                        </Card.Description>
+                    </Card.Content>
+                </Card.Root>
+                <Card.Root>
+                    <Card.Header>
+                        <Card.Title>Open-Source</Card.Title>
+                    </Card.Header>
+                    <Card.Content>
+                        <Card.Description>
+                            Wallo is open-source, allowing for transparency and community
+                            contribution.
                         </Card.Description>
                     </Card.Content>
                 </Card.Root>
