@@ -72,7 +72,7 @@
     {/if}
 </svelte:head>
 
-<div class="relative">
+<div class="relative overflow-hidden">
     <header
         class="bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-50 w-full backdrop-blur-sm"
     >
