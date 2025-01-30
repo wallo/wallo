@@ -15,7 +15,7 @@ This application relies on Cloudflare's [wrangler](https://developers.cloudflare
 
 We use [bun](https://bun.sh/) for development, but npm should work fine as well.
 
-We use [Auth.js](https://authjs.dev/) for authentication, and in production we use [GitHub OAuth](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app) as a provider. If you want to use something else the code for configuring providers is in `src/lib/auth.ts`.
+We use [Auth.js](https://authjs.dev/) for authentication, and in production we use [GitHub OAuth](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app) as a provider. If you want to use something else the code for configuring providers is in `src/lib/auth.ts`. The callback URL for local development should look like `http://localhost:5173/auth/callback/github`.
 
 To setup environment variables, create `.dev.vars` file with the following:
 
