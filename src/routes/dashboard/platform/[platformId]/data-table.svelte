@@ -19,7 +19,8 @@
     import { Search } from 'lucide-svelte';
     import { navigating, page } from '$app/state';
     import { onMount, untrack } from 'svelte';
-    import LoadingIcon from '$lib/loading-icon.svelte';
+    import LoadingIcon from '$lib/components/custom/media/loading-icon.svelte';
+
 
     interface Props {
         data: Case[];

@@ -4,7 +4,7 @@
     import ThemeSwitch from '$ui/theme-switch/theme-switch.svelte';
     import * as DropdownMenu from '$ui/dropdown-menu/index.js';
     import { signOut } from '@auth/sveltekit/client';
-    import Logo from '$lib/logo.svelte';
+    import Logo from '$lib/components/custom/media/logo.svelte';
     import { getInitials } from '$lib/name';
 
     interface Props {
