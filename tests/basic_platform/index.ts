@@ -66,7 +66,7 @@ async function loadSubjectsFromLocal() {
         const file = Bun.file('subjects.json');
         const newSubjects = await file.json();
         subjects.splice(0, subjects.length, ...newSubjects);
-    } catch (error) {
+    } catch {
         console.warn('No subjects found. Starting fresh.');
     }
 }
@@ -93,15 +93,17 @@ const server = Bun.serve({
                     if (kind === 'text') {
                         media.push({
                             kind,
-                            message: faker.lorem.sentence()
+                            message: faker.lorem.sentence(),
+                            tag: faker.lorem.word()
                         });
                     } else {
                         media.push({
                             kind,
-                            url: faker.image.url({
+                            url: faker.image.urlPicsumPhotos({
                                 width: 400,
                                 height: 400
-                            })
+                            }),
+                            tag: faker.lorem.word()
                         });
                     }
                 }
@@ -131,6 +133,28 @@ const server = Bun.serve({
             });
         }
 
+        const providedAuthorization = request.headers.get('Authorization');
+
+        if (providedAuthorization === null) {
+            return new Response('Unauthorized.', {
+                status: 401,
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            });
+        }
+
+        const expectedAuthorization = `Bearer ${WALLO_SECRET}`;
+
+        if (providedAuthorization.length !== expectedAuthorization.length) {
+            return new Response('Forbidden.', {
+                status: 403,
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            });
+        }
+
         if (
             crypto.timingSafeEqual(
                 new TextEncoder().encode(request.headers.get('Authorization') ?? ''),
@@ -138,7 +162,7 @@ const server = Bun.serve({
             ) === false
         ) {
             return new Response('Unauthorized.', {
-                status: 401,
+                status: 403,
                 headers: {
                     'Content-Type': 'text/plain'
                 }
