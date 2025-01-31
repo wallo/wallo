@@ -13,23 +13,23 @@
         { text: 'MAKE $$$ FAST - WORK FROM HOME!!! 💵', isBad: true },
         { text: 'Hot singles in your area want to meet you 😘', isBad: true },
         { text: 'Prescriptions for cheap prices - 90% OFF!!! 💊', isBad: true },
-        { text: 'GET 1000 FOLLOWERS INSTANTLY www.fakefollowers.com 👥', isBad: true },
+        { text: '1000 FOLLOWERS INSTANTLY 👥', isBad: true },
         { text: "CONGRATULATIONS! You've won an iPhone 15!!! 📱", isBad: true },
         { text: 'INVEST NOW!!! 1000% GUARANTEED RETURNS!!! 📈', isBad: true },
         { text: 'Download FREE MOVIES here! No virus!!! 🎬', isBad: true },
         { text: 'URGENT: Your account needs verification NOW! ⚠️', isBad: true },
-        { text: 'CLAIM YOUR $1000 GIFT CARD NOW - LIMITED TIME!!! 🎁', isBad: true },
-        { text: 'YOUR COMPUTER HAS A VIRUS! CLICK HERE TO FIX!!! 🦠', isBad: true },
+        { text: 'CLAIM YOUR $1000 GIFT CARD NOW - LIMITED!!! 🎁', isBad: true },
+        { text: 'YOUR COMPUTER HAS VIRUS! CLICK HERE!!! 🦠', isBad: true },
         { text: 'LOSE 30 POUNDS IN 7 DAYS - MIRACLE PILL!!! 💪', isBad: true },
-        { text: 'YOU ARE THE 1,000,000th VISITOR! CLAIM PRIZE NOW! 🎯', isBad: true },
+        { text: 'YOU ARE THE 1,000,000th VISITOR! CLAIM NOW! 🎯', isBad: true },
         { text: 'UNLOCK YOUR PHONE WITH THIS SECRET HACK!!! 🔓', isBad: true },
 
         // Good messages
         { text: 'Great post! Really enjoyed reading this. 🌟', isBad: false },
         { text: 'Thanks for sharing your insights!', isBad: false },
         { text: "Boring video, I'm unsubscribing. 💓", isBad: false },
-        { text: 'I wish my name was Frankfurt :(', isBad: false },
-        { text: "I've been following your blog for a while, great content! 🎉", isBad: false },
+        { text: 'Frankly I wish my name was Frank :(', isBad: false },
+        { text: "Love reading your blog, great content! 🎉", isBad: false },
         { text: 'Is this a joke?', isBad: false },
         { text: 'Looking forward to your next post! ✨', isBad: false },
         { text: 'Awesome work, unsubscribed', isBad: false },
@@ -86,7 +86,7 @@
     let nextId = 0;
     const CARD_WIDTH = 250; // Width of card
     const CARD_MARGIN = 20; // Margin between cards
-    const CARD_HEIGHT = 160; // Height of card
+    const CARD_HEIGHT = 130; // Height of card
     const MAX_CARDS = 8;
 
     let walloPosition: [number, number] = [0, 0];
@@ -97,6 +97,11 @@
     let recentlyUsedMessages: string[] = [];
     let recentlyUsedNames: string[] = [];
     const REPEAT_PREVENTION_COUNT = 6;
+
+    let animationPaused = false;
+    let addCardInterval: ReturnType<typeof setInterval>;
+    let removeCardInterval: ReturnType<typeof setInterval>;
+    let walloInterval: ReturnType<typeof setInterval>;
 
     function addCard() {
         if (uncheckedCards.length >= MAX_CARDS) return;
@@ -179,7 +184,7 @@
             let timeSinceDodge = Date.now() - dodgeStartTimestamp;
             // console.log(timeSinceDodge);
             const displacementValue = -(Math.cos((timeSinceDodge / 1500) * 2 * Math.PI) - 1) / 2;
-            walloPosition[1] = displacementValue * CARD_HEIGHT * 1.1;
+            walloPosition[1] = displacementValue * CARD_HEIGHT * 1.2;
             walloPosition[0] = -displacementValue * CARD_WIDTH * 0.4;
             if (timeSinceDodge > 1500) {
                 isDodging = false;
@@ -189,20 +194,46 @@
         }
     }
 
+    function startIntervals() {
+        if (!animationPaused) {
+            addCardInterval = setInterval(addCard, 100);
+            removeCardInterval = setInterval(removeOldestCard, 2000);
+            walloInterval = setInterval(updateWalloPosition, 4);
+        }
+    }
+
+    function clearIntervals() {
+        clearInterval(addCardInterval);
+        clearInterval(removeCardInterval);
+        clearInterval(walloInterval);
+    }
+
+    function handleVisibilityChange() {
+        if (document.hidden) {
+            animationPaused = true;
+            clearIntervals();
+        } else {
+            // Reset positions and state when becoming visible
+            walloPosition = [0, 0];
+            wobbleDelta = [0, 0];
+            isDodging = false;
+            animationPaused = false;
+            startIntervals();
+        }
+    }
+
     onMount(() => {
-        const addInterval = setInterval(addCard, 100);
-        const removeInterval = setInterval(removeOldestCard, 2000);
-        const walloInterval = setInterval(updateWalloPosition, 4);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        startIntervals();
 
         return () => {
-            clearInterval(addInterval);
-            clearInterval(removeInterval);
-            clearInterval(walloInterval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            clearIntervals();
         };
     });
 </script>
 
-<div class="relative h-[300px] w-full">
+<div class="relative h-[250px] w-full">
     {#each uncheckedCards as card (card.id)}
         <div
             class="absolute transition-all duration-1000"
@@ -224,7 +255,7 @@
                 class={card.isBad ? 'bg-red-500/10' : 'bg-primary/5'}
                 style="width: {CARD_WIDTH}px; height: {CARD_HEIGHT}px;"
             >
-                <Card.Header>
+                <Card.Header class="pb-2 p-3">
                     <div class="flex flex-row items-center space-x-2">
                         <Avatar.Root>
                             <Avatar.Image src="profile-pics/avatar.png" />
@@ -233,7 +264,7 @@
                         <Card.Title class="text-[20px] font-medium">{card.name}</Card.Title>
                     </div>
                 </Card.Header>
-                <Card.Content>
+                <Card.Content class="pt-0">
                     <p class="text-sm font-medium">{card.text}</p>
                 </Card.Content>
             </Card.Root>
