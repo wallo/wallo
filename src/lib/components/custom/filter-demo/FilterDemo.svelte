@@ -237,14 +237,14 @@
     {#each uncheckedCards as card (card.id)}
         <div
             class="absolute transition-all duration-1000"
-            style="right:calc({card.position *
-                (CARD_WIDTH + CARD_MARGIN)}px + 40%); transition-delay:800ms;"
+            style="right:calc({card.position * (CARD_WIDTH + CARD_MARGIN)}px + 30%); transition-delay:500ms;"
             out:fly={{
-                x: card.isBad ? 0 : window.innerWidth / 2,
+                x: card.isBad ? 0 : window.innerWidth,
                 y: card.isBad ? CARD_HEIGHT * 1.0 : 0,
                 duration: 1000,
                 opacity: card.isBad ? 0 : 1,
-                easing: card.isBad ? cubicOut : circIn
+                easing: card.isBad ? cubicOut : circIn,
+                delay: 150
             }}
             in:fly={{
                 y: -150,
@@ -272,8 +272,9 @@
     {/each}
     <div
         class="absolute transition-all duration-20"
-        style="transform: scaleX(-1) translate({walloPosition[0] +
-            wobbleDelta[0]}px, {walloPosition[1] + wobbleDelta[1]}px); left: 63%; top:-30px;"
+        style="transform: scaleX(-1) 
+                translate({walloPosition[0] + wobbleDelta[0]}px, {walloPosition[1] + wobbleDelta[1]}px); 
+                left: 73%; top:-20px; pointer-events: none;"
     >
         <WalloAnimated height={`${CARD_HEIGHT * 1.4}px`} />
     </div>
