@@ -106,7 +106,7 @@
 
     <main class="container flex flex-col items-center justify-center gap-4">
         <section
-            class="flex flex-col items-center justify-center gap-2 py-8 pb-8 md:py-12 md:pb-8 lg:py-24 lg:pb-0"
+            class="flex flex-col items-center justify-center gap-2 py-8 pb-8 md:py-12 md:pb-8 lg:pb-0"
         >
             <h1
                 class="max-w-[1000px] text-center text-3xl leading-tight font-bold tracking-tighter md:text-6xl lg:leading-[1.1]"
