@@ -167,9 +167,9 @@
             animationLoop();
             return;
         }
-        const oldestCard = uncheckedCards[0];
-        oldestCard.showScanLine = true;
-        oldestCard.startedScan = true;
+        
+        uncheckedCards[0].showScanLine = true;
+        uncheckedCards[0].startedScan = true;
         // scan the card for 800 ms
         await delay(1000);
 
