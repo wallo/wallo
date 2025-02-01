@@ -49,7 +49,38 @@
         ...goodMessages.map((text) => ({ text, isBad: false }))
     ];
 
-    const names = Array.from({ length: messages.length }, () => faker.person.firstName());
+    const names = [
+        'Christine',
+        'Alivia',
+        'Milford',
+        'Kelton',
+        'Hilario',
+        'Zola',
+        'Edwin',
+        'Keith',
+        'Wallace',
+        'Eugene',
+        'Lyda',
+        'Desmond',
+        'Abner',
+        'Madonna',
+        'Tommie',
+        'Rubye',
+        'Buford',
+        'Theresia',
+        'Lorenz',
+        'Kirsten',
+        'Jordon',
+        'Lesley',
+        'Treva',
+        'Isabella',
+        'Destany',
+        'Toby',
+        'Adonis',
+        'Lilliana',
+        'Kathlyn',
+        'Brayan'
+    ];
 
     let uncheckedCards: {
         id: number;
