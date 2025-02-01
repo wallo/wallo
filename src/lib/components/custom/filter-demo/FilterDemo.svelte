@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import * as Card from '$ui/card';
     import * as Avatar from '$ui/avatar';
-    import { fly } from 'svelte/transition';
+    import { fly, fade } from 'svelte/transition';
     import { cubicOut, circIn } from 'svelte/easing';
     import WalloAnimated from '$lib/components/custom/media/wallo-animated.svelte';
 
@@ -29,7 +29,7 @@
         { text: 'Thanks for sharing your insights!', isBad: false },
         { text: "Boring video, I'm unsubscribing. 💓", isBad: false },
         { text: 'Frankly I wish my name was Frank :(', isBad: false },
-        { text: "Love reading your blog, great content! 🎉", isBad: false },
+        { text: 'Love reading your blog, great content! 🎉', isBad: false },
         { text: 'Is this a joke?', isBad: false },
         { text: 'Looking forward to your next post! ✨', isBad: false },
         { text: 'Awesome work, unsubscribed', isBad: false },
@@ -81,6 +81,8 @@
         name: string;
         position: number;
         isBad: boolean;
+        showScanLine: boolean;
+        startedScan: boolean;
     }[] = [];
 
     let nextId = 0;
@@ -90,18 +92,12 @@
     const MAX_CARDS = 8;
 
     let walloPosition: [number, number] = [0, 0];
-    let wobbleDelta: [number, number] = [0, 0];
-    let dodgeStartTimestamp = 0;
-    let isDodging = false;
 
     let recentlyUsedMessages: string[] = [];
     let recentlyUsedNames: string[] = [];
     const REPEAT_PREVENTION_COUNT = 6;
 
     let animationPaused = false;
-    let addCardInterval: ReturnType<typeof setInterval>;
-    let removeCardInterval: ReturnType<typeof setInterval>;
-    let walloInterval: ReturnType<typeof setInterval>;
 
     function addCard() {
         if (uncheckedCards.length >= MAX_CARDS) return;
@@ -154,81 +150,81 @@
                 text: selectedMessage.text,
                 position: uncheckedCards.length,
                 isBad: selectedMessage.isBad,
-                name: selectedName
+                name: selectedName,
+                showScanLine: false,
+                startedScan: false
             }
         ];
     }
 
-    function removeOldestCard() {
-        if (uncheckedCards.length === 0) return;
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-        let cardToRemove = uncheckedCards[0];
-
-        if (cardToRemove.isBad === false) {
-            dodgeStartTimestamp = Date.now();
-            isDodging = true;
+    async function animationLoop() {
+        if (animationPaused) return;
+        if (uncheckedCards.length < MAX_CARDS) {
+            addCard();
+            await delay(150);
+            animationLoop();
+            return;
         }
+        const oldestCard = uncheckedCards[0];
+        oldestCard.showScanLine = true;
+        oldestCard.startedScan = true;
+        // scan the card for 800 ms
+        await delay(1000);
 
-        // Remove the rightmost card (position -1)
-        uncheckedCards = uncheckedCards
-            .filter((card) => card.position !== 0)
-            .map((card) => ({
+        // if oldest card isBad, remove it
+        if (uncheckedCards[0].isBad) {
+            // remove oldest card
+            uncheckedCards = uncheckedCards.slice(1);
+            await delay(400);
+            // move cards forward
+            uncheckedCards = uncheckedCards.map((card) => ({
                 ...card,
-                position: card.position - 1 // Shift all cards one position right
+                position: card.position - 1
             }));
-    }
-
-    function updateWalloPosition() {
-        wobbleDelta = [Math.sin(Date.now() / 1000) * 20, Math.cos(Date.now() / 723) * 10];
-        if (isDodging) {
-            let timeSinceDodge = Date.now() - dodgeStartTimestamp;
-            // console.log(timeSinceDodge);
-            const displacementValue = -(Math.cos((timeSinceDodge / 1500) * 2 * Math.PI) - 1) / 2;
-            walloPosition[1] = displacementValue * CARD_HEIGHT * 1.2;
-            walloPosition[0] = -displacementValue * CARD_WIDTH * 0.4;
-            if (timeSinceDodge > 1500) {
-                isDodging = false;
-                walloPosition[1] = 0;
-                walloPosition[0] = 0;
-            }
+            await delay(1000);
         }
-    }
-
-    function startIntervals() {
-        if (!animationPaused) {
-            addCardInterval = setInterval(addCard, 100);
-            removeCardInterval = setInterval(removeOldestCard, 2000);
-            walloInterval = setInterval(updateWalloPosition, 4);
+        // if oldest card is notBad, move wallo down, then remove oldest card
+        else {
+            walloPosition[1] = CARD_HEIGHT * 1.2;
+            walloPosition[0] = -20;
+            await delay(500);
+            uncheckedCards = uncheckedCards.slice(1);
+            // move cards forward
+            await delay(500);
+            uncheckedCards = uncheckedCards.map((card) => ({
+                ...card,
+                position: card.position - 1
+            }));
+            await delay(300);
+            walloPosition[1] = 0;
+            walloPosition[0] = 0;
+            await delay(1000);
         }
-    }
 
-    function clearIntervals() {
-        clearInterval(addCardInterval);
-        clearInterval(removeCardInterval);
-        clearInterval(walloInterval);
+        // add a new card
+        addCard();
+        animationLoop();
     }
 
     function handleVisibilityChange() {
         if (document.hidden) {
             animationPaused = true;
-            clearIntervals();
         } else {
             // Reset positions and state when becoming visible
             walloPosition = [0, 0];
-            wobbleDelta = [0, 0];
-            isDodging = false;
             animationPaused = false;
-            startIntervals();
+            animationLoop();
         }
     }
 
     onMount(() => {
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        startIntervals();
+        animationLoop();
 
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
-            clearIntervals();
         };
     });
 </script>
@@ -236,49 +232,98 @@
 <div class="relative h-[250px] w-full">
     {#each uncheckedCards as card (card.id)}
         <div
-            class="absolute transition-all duration-1000"
-            style="right:calc({card.position * (CARD_WIDTH + CARD_MARGIN)}px + 30%); transition-delay:500ms;"
+            class="absolute transition-all duration-1000 ease-in-out"
+            style="right:calc({card.position * (CARD_WIDTH + CARD_MARGIN)}px + 30%);"
             out:fly={{
                 x: card.isBad ? 0 : window.innerWidth,
                 y: card.isBad ? CARD_HEIGHT * 1.0 : 0,
                 duration: 1000,
                 opacity: card.isBad ? 0 : 1,
-                easing: card.isBad ? cubicOut : circIn,
-                delay: 150
+                easing: card.isBad ? cubicOut : circIn
             }}
             in:fly={{
                 y: -150,
                 duration: 1000
             }}
         >
-            <Card.Root
-                class={card.isBad ? 'bg-red-500/10' : 'bg-primary/5'}
-                style="width: {CARD_WIDTH}px; height: {CARD_HEIGHT}px;"
-            >
-                <Card.Header class="pb-2 p-3">
-                    <div class="flex flex-row items-center space-x-2">
-                        <Avatar.Root>
-                            <Avatar.Image src="profile-pics/avatar.png" />
-                            <Avatar.Fallback>pic</Avatar.Fallback>
-                        </Avatar.Root>
-                        <Card.Title class="text-[20px] font-medium">{card.name}</Card.Title>
-                    </div>
-                </Card.Header>
-                <Card.Content class="pt-0">
-                    <p class="text-sm font-medium">{card.text}</p>
-                </Card.Content>
-            </Card.Root>
+            <div class="relative overflow-hidden rounded-lg {card.isBad && card.startedScan ? 'bad-container' : ''}">
+                {#if card.showScanLine}
+                    <div
+                        class="absolute w-full h-[5px] bg-red-500/50 scan-line"
+                        out:fade
+                        on:animationend={() => (card.showScanLine = false)}
+                    ></div>
+                {/if}
+                <Card.Root
+                    class="bg-primary/5"
+                    style="width: {CARD_WIDTH}px; height: {CARD_HEIGHT}px;"
+                >
+                    <Card.Header class="p-3">
+                        <div class="flex flex-row items-center space-x-2">
+                            <Avatar.Root>
+                                <Avatar.Image src="profile-pics/avatar.png"/>
+                                <Avatar.Fallback>pic</Avatar.Fallback>
+                            </Avatar.Root>
+                            <Card.Title class="text-[20px] font-medium">{card.name}</Card.Title>
+                        </div>
+                    </Card.Header>
+                    <Card.Content class="pt-0">
+                        <p class="text-sm font-medium">{card.text}</p>
+                    </Card.Content>
+                </Card.Root>
+            </div>
         </div>
     {/each}
     <div
-        class="absolute transition-all duration-20"
-        style="transform: scaleX(-1) 
-                translate({walloPosition[0] + wobbleDelta[0]}px, {walloPosition[1] + wobbleDelta[1]}px); 
-                left: 73%; top:-20px; pointer-events: none;"
+        class="absolute transition-all duration-1000 ease-in-out"
+        style="transform: scaleX(-1) translate({walloPosition[0]}px, {walloPosition[1]}px);
+                left: 70%; top:-30px; pointer-events: none;"
     >
-        <WalloAnimated height={`${CARD_HEIGHT * 1.4}px`} />
+        <div class="wallo-float">
+            <WalloAnimated height={`${CARD_HEIGHT * 1.4}px`} />
+        </div>
     </div>
 </div>
 
 <style>
+    .wallo-float {
+        animation: float 5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translate(0, 0);
+        }
+        50% {
+            transform: translate(-30px, 30px);
+        }
+    }
+
+    .scan-line {
+        animation: scan 0.8s ease-in-out forwards;
+        box-shadow: 0 0 10px rgb(239 68 68);
+    }
+
+    @keyframes scan {
+        0% {
+            top: 0;
+        }
+        100% {
+            top: 100%;
+        }
+    }
+
+    .bad-container {
+        animation: scan-box 0.8s ease-in-out forwards;
+    }
+
+    @keyframes scan-box {
+        0% {
+            background-color: rgba(255, 0, 0, 0);
+        }
+        100% {
+            background-color: rgba(255, 0, 0, 0.25);
+        }
+    }
 </style>
