@@ -6,7 +6,6 @@
     import { cubicOut, circIn } from 'svelte/easing';
     import WalloAnimated from '$lib/components/custom/media/wallo-animated.svelte';
     import { getInitials } from '$lib/name';
-    import { faker } from '@faker-js/faker/locale/en';
 
     const badMessages = [
         'BUY CHEAP WATCHES HERE >>> www.scamsite.com ⌚',
