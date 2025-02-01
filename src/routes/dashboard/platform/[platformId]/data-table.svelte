@@ -21,7 +21,6 @@
     import { onMount, untrack } from 'svelte';
     import LoadingIcon from '$lib/components/custom/media/loading-icon.svelte';
 
-
     interface Props {
         data: Case[];
         count: number;
