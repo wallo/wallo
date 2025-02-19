@@ -103,8 +103,6 @@
     let recentlyUsedNames: string[] = [];
     const REPEAT_PREVENTION_COUNT = 6;
 
-    let animationPaused = false;
-
     function addCard() {
         if (uncheckedCards.length >= MAX_CARDS) return;
 
@@ -166,7 +164,6 @@
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     async function animationLoop() {
-        if (animationPaused) return;
         if (uncheckedCards.length < MAX_CARDS) {
             addCard();
             await delay(150);
@@ -204,8 +201,7 @@
                 position: card.position - 1
             }));
             await delay(300);
-            walloPosition[1] = 0;
-            walloPosition[0] = 0;
+            walloPosition = [0, 0];
             await delay(1000);
         }
 
@@ -214,24 +210,8 @@
         animationLoop();
     }
 
-    function handleVisibilityChange() {
-        if (document.hidden) {
-            animationPaused = true;
-        } else {
-            // Reset positions and state when becoming visible
-            walloPosition = [0, 0];
-            animationPaused = false;
-            animationLoop();
-        }
-    }
-
     onMount(() => {
-        document.addEventListener('visibilitychange', handleVisibilityChange);
         animationLoop();
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
     });
 </script>
 
