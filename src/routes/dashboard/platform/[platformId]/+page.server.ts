@@ -1,8 +1,9 @@
 import type { PageServerLoad } from './$types';
-import { fixCase, type CaseDB } from '$lib/types';
+import type { CaseDB } from '$lib/types';
 import { restrict } from '$lib/string';
 import { canEnter } from './auth';
 import type { ColumnFiltersState, SortingState } from '@tanstack/table-core';
+import { fixCase } from '$lib/database';
 
 export const load = (async ({ platform, url, locals, params }) => {
     const { moderationPlatform } = await canEnter(params, platform, locals);

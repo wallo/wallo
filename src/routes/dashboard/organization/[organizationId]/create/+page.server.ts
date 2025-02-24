@@ -3,9 +3,9 @@ import type { Actions, PageServerLoad } from './$types';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
 import { fail, redirect } from '@sveltejs/kit';
-import type { Orgnaization } from '$lib/types';
 import { generateApiSecret, generateId } from '$lib/crypto';
 import { dev } from '$app/environment';
+import { getOrganization } from '$lib/database';
 
 export const load = (async () => {
     return {
@@ -31,12 +31,7 @@ export const actions: Actions = {
         if (!userId) return fail(401);
 
         // verify user is admin of organization
-        const organization =
-            (await platform?.env.DB.prepare(
-                'SELECT * FROM organizations WHERE adminId = ? AND id = ?'
-            )
-                .bind(userId, params.organizationId)
-                .first<Orgnaization>()) ?? null;
+        const organization = await getOrganization(params.organizationId, userId, platform);
 
         if (organization === null) return fail(403);
 

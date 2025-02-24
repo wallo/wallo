@@ -4,6 +4,7 @@
     import type { PageData } from './$types';
     import { Card } from '$ui/card';
     import CardDescription from '$ui/card/card-description.svelte';
+    import * as Accordion from '$ui/accordion';
     import CommentForm from './comment-form.svelte';
     import { Separator } from '$ui/separator';
     import { Info } from 'lucide-svelte';
@@ -21,8 +22,8 @@
     Take Moderation Action
 </h1>
 
-<div class="mb-16 flex flex-wrap gap-4">
-    <div class="grid grow basis-3/5 gap-4">
+<div class="mb-16 flex flex-col gap-4 md:flex-row">
+    <div class="grow basis-3/5 space-y-4">
         <div class="flex w-full flex-col gap-1.5">
             <Label for="id">ID</Label>
             <Input
@@ -35,12 +36,10 @@
         </div>
 
         {#if 'medias' in data.subject}
-            <div class="my-2 flex flex-col gap-4">
-                <MediaDisplay medias={data.subject.medias}></MediaDisplay>
-            </div>
+            <MediaDisplay medias={data.subject.medias}></MediaDisplay>
         {/if}
 
-        <div class="my-2 flex gap-8">
+        <div class="flex gap-8">
             <ActionForm
                 data={data.actionForm}
                 action={{ id: '__skip__', display: 'Skip', variant: 'outline' }}
@@ -50,12 +49,11 @@
             {/each}
         </div>
     </div>
-    <Separator class="mx-2 h-auto" orientation="vertical"></Separator>
+    <Separator class="mx-2 h-auto not-md:hidden" orientation="vertical"></Separator>
     <div class="flex flex-1 basis-72 flex-col gap-2">
-        <h1 class="text-lg font-extrabold">Discussion</h1>
-        <CommentForm data={data.commentForm}></CommentForm>
-        <div class="grid gap-2">
-            {#each data.actions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()) as action}
+        <h2 class="text-lg font-extrabold">Discussion</h2>
+        <div class="space-y-2">
+            {#each data.actions.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()) as action}
                 {#if action.kind === 'comment'}
                     <Card class="p-2">
                         <p>{action.text}</p>
@@ -94,6 +92,23 @@
                     </Card>
                 {/if}
             {/each}
+        </div>
+        <CommentForm data={data.commentForm}></CommentForm>
+        <h2 class="text-lg font-extrabold">Rules</h2>
+        <div class="space-y-2">
+            <Accordion.Root type="multiple">
+                {#each data.rules as rule, index}
+                    <Accordion.Item>
+                        <Accordion.Trigger>
+                            {index + 1}.
+                            {rule.information.title}
+                        </Accordion.Trigger>
+                        <Accordion.Content>
+                            {rule.information.description}
+                        </Accordion.Content>
+                    </Accordion.Item>
+                {/each}
+            </Accordion.Root>
         </div>
     </div>
 </div>

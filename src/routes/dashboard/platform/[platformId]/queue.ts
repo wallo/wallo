@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { RouteParams } from './$types';
-import { fixCase, type CaseDB } from '$lib/types';
+import type { CaseDB } from '$lib/types';
+import { fixCase } from '$lib/database';
 
 export async function redirectMe(
     userId: string,

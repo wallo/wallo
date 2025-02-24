@@ -58,7 +58,7 @@
                             </Alert.Description>
                         </Alert.Root>
                     {/if}
-                    <div class="grid gap-4">
+                    <div class="space-y-4">
                         {#each data.providerMap as provider}
                             <Button
                                 variant="outline"

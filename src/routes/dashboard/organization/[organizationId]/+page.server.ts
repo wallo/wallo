@@ -1,6 +1,7 @@
-import { fixOrganization, type OrgnaizationDB, type Platform } from '$lib/types';
+import type { Platform } from '$lib/types';
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { getOrganization } from '$lib/database';
 
 export const load = (async ({ params, platform, locals }) => {
     const session = await locals.auth();
@@ -8,10 +9,7 @@ export const load = (async ({ params, platform, locals }) => {
     if (!userId) redirect(303, '/login');
     const { organizationId } = params;
 
-    const organization =
-        (await platform?.env.DB.prepare('SELECT * FROM organizations WHERE id = ? AND adminId = ?')
-            .bind(organizationId, userId)
-            .first<OrgnaizationDB>()) ?? null;
+    const organization = await getOrganization(organizationId, userId, platform);
 
     if (organization === null) redirect(303, '/dashboard');
 
@@ -31,7 +29,7 @@ export const load = (async ({ params, platform, locals }) => {
     ).map((p) => ({ id: p.id, name: p.name, caseCount: p.caseCount }));
 
     return {
-        organization: fixOrganization(organization),
+        organization,
         platforms
     };
 }) satisfies PageServerLoad;

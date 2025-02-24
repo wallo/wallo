@@ -1,6 +1,6 @@
-import type { Platform } from '$lib/types';
 import type { RequestHandler } from './$types';
 import { timingSafeEqual } from '$lib/crypto';
+import { getModerationPlatform } from '$lib/database';
 
 export const POST: RequestHandler = async ({ request, platform }) => {
     const authorizationHeader = request.headers.get('Authorization');
@@ -24,10 +24,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
         platformId: string;
     }>();
 
-    const client =
-        (await platform?.env.DB.prepare('SELECT * FROM platforms WHERE id = ?')
-            .bind(clientId)
-            .first<Platform>()) ?? null;
+    const client = await getModerationPlatform(clientId, platform);
 
     if (!client) return new Response('', { status: 400 });
 

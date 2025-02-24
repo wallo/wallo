@@ -1,12 +1,4 @@
-import {
-    fixAction,
-    fixCase,
-    type ActionDB,
-    type CaseDB,
-    type CustomAction,
-    type DiscussionAction,
-    type PlatformAction
-} from '$lib/types';
+import type { CustomAction, DiscussionAction, PlatformAction } from '$lib/types';
 import { error, fail, isActionFailure } from '@sveltejs/kit';
 import { canEnter, canEnterAction } from '../../../auth';
 import type { Actions, PageServerLoad } from './$types';
@@ -17,14 +9,16 @@ import { actionFormSchema } from './action-schema';
 import { redirectMe } from '../../../queue';
 import { skip } from './queue';
 import { informPlaformOfAction, retrieveSubjectData } from '$lib/api';
+import { getActions, getCase, getRules } from '$lib/database';
 
 export const load = (async ({ params, platform, locals }) => {
     const { moderationPlatform } = await canEnter(params, platform, locals);
-    const moderationCase = await platform?.env.DB.prepare(
-        'SELECT * FROM cases WHERE platformId = ? AND relevantId = ? AND kind = ?'
-    )
-        .bind(moderationPlatform.id, params.caseId, params.kindId)
-        .first<CaseDB>();
+    const moderationCase = await getCase(
+        moderationPlatform.id,
+        params.caseId,
+        params.kindId,
+        platform
+    );
 
     if (!moderationCase) error(404, 'Case not found in database');
 
@@ -41,26 +35,19 @@ export const load = (async ({ params, platform, locals }) => {
 
     if (subject.valid === false) error(subject.error.code, subject.error.message);
 
-    const actions = (
-        (
-            await platform?.env.DB.prepare(
-                `SELECT actions.*, users.name 
-				FROM actions 
-				LEFT JOIN users ON actions.authorId = users.id 
-				WHERE actions.platformId = ? AND actions.relevantId = ? AND actions.kind = ?`
-            )
-                .bind(moderationPlatform.id, params.caseId, params.kindId)
-                .all<ActionDB>()
-        )?.results ?? []
-    ).map(fixAction);
+    const [rules, actions] = await Promise.all([
+        getRules(moderationPlatform.id, platform),
+        getActions(moderationPlatform.id, params.caseId, params.kindId, platform)
+    ]);
 
     return {
-        moderationCase: fixCase(moderationCase),
+        moderationCase: moderationCase,
         kind: params.kindId,
         subject: subject.data,
         actions,
         commentForm: await superValidate(zod(commentFormSchema)),
-        actionForm: await superValidate(zod(actionFormSchema))
+        actionForm: await superValidate(zod(actionFormSchema)),
+        rules
     };
 }) satisfies PageServerLoad;
 

@@ -1,6 +1,7 @@
 import { error, fail, redirect, type ActionFailure } from '@sveltejs/kit';
 import type { RouteParams } from './$types';
-import type { Orgnaization, Platform } from '$lib/types';
+import type { Platform } from '$lib/types';
+import { getModerationPlatform, getOrganization } from '$lib/database';
 
 export async function canEnterAction(
     params: RouteParams,
@@ -15,10 +16,7 @@ export async function canEnterAction(
 
     const { platformId } = params;
 
-    const moderationPlatform =
-        (await platform?.env.DB.prepare('SELECT * FROM platforms WHERE id = ?')
-            .bind(platformId)
-            .first<Platform>()) ?? null;
+    const moderationPlatform = await getModerationPlatform(platformId, platform);
 
     const isModerator =
         ((await platform?.env.DB.prepare(
@@ -31,11 +29,7 @@ export async function canEnterAction(
 
     if (!isModerator) {
         const isAdmin =
-            ((await platform?.env.DB.prepare(
-                'SELECT * FROM organizations WHERE id = ? AND adminId = ?'
-            )
-                .bind(moderationPlatform.organizationId, userId)
-                .first<Orgnaization>()) ?? null) !== null;
+            (await getOrganization(moderationPlatform.organizationId, userId, platform)) !== null;
 
         if (!isAdmin) {
             return fail(403);
@@ -58,10 +52,7 @@ export async function canEnter(
 
     const { platformId } = params;
 
-    const moderationPlatform =
-        (await platform?.env.DB.prepare('SELECT * FROM platforms WHERE id = ?')
-            .bind(platformId)
-            .first<Platform>()) ?? null;
+    const moderationPlatform = await getModerationPlatform(platformId, platform);
 
     const isModerator =
         ((await platform?.env.DB.prepare(
@@ -74,11 +65,7 @@ export async function canEnter(
 
     if (!isModerator) {
         const isAdmin =
-            ((await platform?.env.DB.prepare(
-                'SELECT * FROM organizations WHERE id = ? AND adminId = ?'
-            )
-                .bind(moderationPlatform.organizationId, userId)
-                .first<Orgnaization>()) ?? null) !== null;
+            (await getOrganization(moderationPlatform.organizationId, userId, platform)) !== null;
 
         if (!isAdmin) {
             redirect(303, '/dashboard');
