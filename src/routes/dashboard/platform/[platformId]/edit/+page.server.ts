@@ -3,11 +3,13 @@ import type { Actions, PageServerLoad, RouteParams } from './$types';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { editFormSchema } from './edit-schema';
-import type { Orgnaization, Platform } from '$lib/types';
-import { generateApiSecret } from '$lib/crypto';
+import type { Organization, Platform } from '$lib/types';
+import { generateApiSecret, generateRuleId } from '$lib/crypto';
 import { inviteFormSchema } from './invite-moderator';
 import { deleteModeratorFormSchema } from './delete-moderator';
 import { dev } from '$app/environment';
+import { archiveRuleSchema, editRuleSchema, createRuleSchema } from './rules-schema';
+import { getModerationPlatform, getOrganization, getRules } from '$lib/database';
 
 async function isAuth({
     locals,
@@ -19,28 +21,20 @@ async function isAuth({
     params: RouteParams;
 }): Promise<{
     moderationPlatform: Platform;
-    organization: Orgnaization;
+    organization: Organization;
 }> {
     const session = await locals.auth();
     const userId = session?.user?.id;
     if (!userId) redirect(303, '/login');
     const { platformId } = params;
 
-    const moderationPlatform = await platform?.env.DB.prepare(
-        `SELECT * FROM platforms WHERE id = ?`
-    )
-        .bind(platformId)
-        .first<Platform>();
+    const moderationPlatform = await getModerationPlatform(platformId, platform);
 
     if (!moderationPlatform) throw fail(404);
 
     const { organizationId } = moderationPlatform;
 
-    const organization = await platform?.env.DB.prepare(
-        'SELECT * FROM organizations WHERE id = ? AND adminId = ?'
-    )
-        .bind(organizationId, userId)
-        .first<Orgnaization>();
+    const organization = await getOrganization(organizationId, userId, platform);
 
     if (!organization) redirect(303, '/dashboard');
 
@@ -93,6 +87,8 @@ export const load = (async ({ locals, platform, params, cookies }) => {
         });
     }
 
+    const rules = await getRules(moderationPlatform.id, platform);
+
     return {
         organization,
         editPlatformForm: await superValidate(
@@ -106,8 +102,35 @@ export const load = (async ({ locals, platform, params, cookies }) => {
         secret: cookieSecret,
         invitePlatformForm: await superValidate(zod(inviteFormSchema)),
         deleteModeratorForm: await superValidate(zod(deleteModeratorFormSchema)),
+        editRuleForms: await Promise.all(
+            rules.map(
+                async (rule) =>
+                    await superValidate(
+                        {
+                            ruleId: rule.ruleId,
+                            readableName: rule.readableName,
+                            title: rule.information.title,
+                            description: rule.information.description
+                        },
+                        zod(editRuleSchema)
+                    )
+            )
+        ),
+        archiveRuleForms: await Promise.all(
+            rules.map(
+                async (rule) =>
+                    await superValidate(
+                        {
+                            ruleId: rule.ruleId
+                        },
+                        zod(archiveRuleSchema)
+                    )
+            )
+        ),
+        createRuleForm: await superValidate(zod(createRuleSchema)),
         moderators,
-        invitations
+        invitations,
+        rules
     };
 }) satisfies PageServerLoad;
 
@@ -237,5 +260,103 @@ export const actions: Actions = {
             .run();
 
         return {};
+    },
+    createRule: async (event) => {
+        const { locals, params, platform } = event;
+        const { moderationPlatform } = await isAuth({ locals, platform, params });
+
+        const form = await superValidate(event, zod(createRuleSchema));
+        if (!form.valid) {
+            return fail(400, {
+                form
+            });
+        }
+
+        const { readableName, title, description } = form.data;
+
+        const ruleId = generateRuleId();
+
+        await platform?.env.DB.prepare(
+            `INSERT INTO rules (platformId, ruleId, readableName, information) VALUES (?, ?, ?, ?)`
+        )
+            .bind(
+                moderationPlatform.id,
+                ruleId,
+                readableName,
+                JSON.stringify({ title, description })
+            )
+            .run();
+
+        return { form };
+    },
+    updateRule: async (event) => {
+        const { locals, params, platform } = event;
+        const { moderationPlatform } = await isAuth({ locals, platform, params });
+
+        const form = await superValidate(event, zod(editRuleSchema));
+        if (!form.valid) {
+            return fail(400, {
+                form
+            });
+        }
+
+        const { ruleId, readableName, title, description } = form.data;
+
+        await platform?.env.DB.prepare(
+            `UPDATE rules SET readableName = ?, information = ?, updatedAt = CURRENT_TIMESTAMP WHERE ruleId = ? AND platformId = ?`
+        )
+            .bind(
+                readableName,
+                JSON.stringify({ title, description }),
+                ruleId,
+                moderationPlatform.id
+            )
+            .run();
+
+        return { form };
+    },
+    archiveRule: async (event) => {
+        const { locals, params, platform } = event;
+        const { moderationPlatform } = await isAuth({ locals, platform, params });
+
+        const form = await superValidate(event, zod(archiveRuleSchema));
+
+        if (!form.valid) {
+            return fail(400, {
+                form
+            });
+        }
+
+        const { ruleId } = form.data;
+
+        await platform?.env.DB.prepare(
+            `UPDATE rules SET active = 0, updatedAt = CURRENT_TIMESTAMP WHERE ruleId = ? AND platformId = ?`
+        )
+            .bind(ruleId, moderationPlatform.id)
+            .run();
+
+        return { form };
+    },
+    unarchiveRule: async (event) => {
+        const { locals, params, platform } = event;
+        const { moderationPlatform } = await isAuth({ locals, platform, params });
+
+        const form = await superValidate(event, zod(archiveRuleSchema));
+
+        if (!form.valid) {
+            return fail(400, {
+                form
+            });
+        }
+
+        const { ruleId } = form.data;
+
+        await platform?.env.DB.prepare(
+            `UPDATE rules SET active = 1, updatedAt = CURRENT_TIMESTAMP WHERE ruleId = ? AND platformId = ?`
+        )
+            .bind(ruleId, moderationPlatform.id)
+            .run();
+
+        return { form };
     }
 };

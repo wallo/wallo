@@ -28,6 +28,8 @@ export type CommunityId = string;
 export type ContentId = string;
 export type PlatformId = string;
 export type ModeratorId = string;
+export type RuleId = string;
+export type OrganizationId = string;
 export type RelevantId = ContentId | AccountId | CommunityId;
 
 export type PossibleAction = {
@@ -102,41 +104,47 @@ export type Action = {
     createdAt: Date;
 } & (CustomAction | DiscussionAction | PlatformAction);
 
-export function fixAction(action: ActionDB): Action {
-    return {
-        ...action,
-        createdAt: new Date(action.createdAt),
-        ...(JSON.parse(action.actionInfo) satisfies
-            | CustomAction
-            | DiscussionAction
-            | PlatformAction)
-    };
-}
-
 export type Platform = {
-    id: string;
-    organizationId: string;
+    id: PlatformId;
+    organizationId: OrganizationId;
     name: string;
     callbackUrl: string;
     secret: string;
 };
 
-export type OrgnaizationDB = {
-    id: string;
+export type OrganizationDB = {
+    id: OrganizationId;
     name: string;
     createdAt: string;
     updatedAt: string;
 };
 
-export type Orgnaization = Modify<OrgnaizationDB, { createdAt: Date; updatedAt: Date }>;
+export type Organization = Modify<OrganizationDB, { createdAt: Date; updatedAt: Date }>;
 
-export function fixOrganization(organization: OrgnaizationDB): Orgnaization {
-    return {
-        ...organization,
-        createdAt: new Date(organization.createdAt),
-        updatedAt: new Date(organization.updatedAt)
-    };
-}
+export type RuleDB = {
+    ruleId: RuleId;
+    platformId: PlatformId;
+    readableName: string;
+    information: string;
+    active: number;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type RuleInformation = {
+    title: string;
+    description: string;
+};
+
+export type Rule = Modify<
+    RuleDB,
+    {
+        active: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        information: RuleInformation;
+    }
+>;
 
 export type CaseDB = {
     platformId: PlatformId;
@@ -175,10 +183,26 @@ export function getError(error: unknown): string {
     }
 }
 
-export function fixCase(givenCase: CaseDB): Case {
-    return {
-        ...givenCase,
-        createdAt: new Date(givenCase.createdAt),
-        updatedAt: new Date(givenCase.updatedAt)
-    };
+// Type helper to extract tuple type from array types
+type ArrayElements<T> = T extends Array<infer U> ? U : never;
+
+// Type helper for the resulting tuple type
+type ZippedTuple<T extends Array<unknown>[]> = {
+    [K in keyof T]: ArrayElements<T[K]>;
+};
+
+export function zip<T extends Array<unknown>[]>(...arrays: [...T]): Array<ZippedTuple<T>> {
+    if (arrays.length === 0) return [];
+
+    // Find the length of the shortest array
+    const minLength = Math.min(...arrays.map((arr) => arr.length));
+
+    // Create the zipped array
+    const result = Array(minLength);
+
+    for (let i = 0; i < minLength; i++) {
+        result[i] = arrays.map((arr) => arr[i]) as ZippedTuple<T>;
+    }
+
+    return result;
 }

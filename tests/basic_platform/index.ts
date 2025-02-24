@@ -82,13 +82,15 @@ const server = Bun.serve({
     async fetch(request) {
         const url = new URL(request.url);
         if (url.pathname === '/populate') {
-            for (const i of Array(10).keys()) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            for (const _i of Array(10).keys()) {
                 const id = crypto.randomUUID();
                 const kind = 'content';
 
                 const media: Media[] = [];
 
-                for (const j of Array(Math.floor(Math.random() * 3) + 1).keys()) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                for (const _j of Array(Math.floor(Math.random() * 3) + 1).keys()) {
                     const kind = Math.random() < 0.5 ? 'text' : 'image';
                     if (kind === 'text') {
                         media.push({

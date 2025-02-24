@@ -6,7 +6,6 @@
     import { editFormSchema, type EditFormSchema } from './edit-schema';
     import * as Card from '$ui/card';
     import Label from '$ui/label/label.svelte';
-    import { Separator } from '$ui/separator';
 
     interface Props {
         data: SuperValidated<Infer<EditFormSchema>>;
@@ -29,7 +28,6 @@
     </Card.Header>
     <Card.Content>
         <form class="flex max-w-(--breakpoint-md) flex-col gap-5" method="POST">
-            <Separator />
             <Form.Field {form} name="platformName">
                 <Form.Control>
                     {#snippet children({ props })}

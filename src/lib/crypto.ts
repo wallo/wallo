@@ -1,4 +1,5 @@
 import { timingSafeEqual as CryptoTimingSafeEqual, getRandomValues } from 'crypto';
+import type { RuleId } from './types';
 
 function bytesToInteger(bytes: Uint8Array): bigint {
     return bytes.reduce((acc, byte) => acc * 0x100n + BigInt(byte), 0n);
@@ -40,6 +41,10 @@ export function generateSecret(
 
 export function generateApiSecret(): string {
     return generateSecret(32);
+}
+
+export function generateRuleId(): RuleId {
+    return generateSecret(10);
 }
 
 export function generateId(

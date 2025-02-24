@@ -9,6 +9,7 @@
     import * as Alert from '$ui/alert';
     import { CircleAlert } from 'lucide-svelte';
     import { Button } from '$ui/button';
+    import RulesForm from './RulesForm.svelte';
     interface Props {
         data: PageData;
     }
@@ -21,7 +22,7 @@
 </script>
 
 <div class="max-md:space-y-4 md:flex md:flex-row md:gap-4">
-    <div class="flex-3 space-y-2">
+    <div class="flex-3 space-y-4">
         {#if (secret?.length ?? 0) > 0}
             <Alert.Root variant="destructive">
                 <CircleAlert class="size-4" />
@@ -58,14 +59,23 @@
             </Alert.Root>
         {/if}
         <EditForm data={data.editPlatformForm} platformId={data.platformId} />
+        <RulesForm
+            data={data.rules}
+            platformId={data.platformId}
+            forms={{
+                edit: data.editRuleForms,
+                archive: data.archiveRuleForms,
+                create: data.createRuleForm
+            }}
+        />
     </div>
-    <div class="flex-1 space-y-2">
+    <div class="flex-1 space-y-4">
         <Card.Root>
             <Card.Header>
                 <Card.Title>Team Members</Card.Title>
                 <Card.Description>Manage your team members</Card.Description>
             </Card.Header>
-            <Card.Content class="grid gap-6">
+            <Card.Content class="space-y-6">
                 {#each data.moderators as moderator}
                     <div class="flex items-center justify-between space-x-4">
                         <div class="flex items-center space-x-4">
@@ -96,7 +106,7 @@
                 <Card.Title>Invitations</Card.Title>
                 <Card.Description>Manage your invitations</Card.Description>
             </Card.Header>
-            <Card.Content class="grid gap-6">
+            <Card.Content class="space-y-6">
                 {#each data.invitations as invitation}
                     <div class="flex items-center justify-between space-x-4">
                         <div class="flex items-center space-x-4">
