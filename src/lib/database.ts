@@ -79,6 +79,18 @@ export async function getOrganization(
     return organizationDatabase ? fixOrganization(organizationDatabase) : null;
 }
 
+export async function checkIsAdmin(
+    organizationId: OrganizationId,
+    userId: string,
+    platform: { env: { DB: D1Database } } | undefined
+): Promise<boolean> {
+    return (
+        ((await platform?.env.DB.prepare('SELECT * FROM organizations WHERE id = ? AND adminId = ?')
+            .bind(organizationId, userId)
+            .first()) ?? null) !== null
+    );
+}
+
 export async function getCase(
     platformId: PlatformId,
     caseId: string,
@@ -112,6 +124,20 @@ export async function getActions(
                 .all<ActionDB>()
         )?.results ?? []
     ).map(fixAction);
+}
+
+export async function checkIsModerator(
+    platformId: PlatformId,
+    userId: string,
+    platform: { env: { DB: D1Database } } | undefined
+): Promise<boolean> {
+    return (
+        ((await platform?.env.DB.prepare(
+            'SELECT * FROM platformModerators WHERE platformId = ? AND userId = ?'
+        )
+            .bind(platformId, userId)
+            .first()) ?? null) !== null
+    );
 }
 
 export async function getRules(
