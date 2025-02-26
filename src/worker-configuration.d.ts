@@ -4,6 +4,18 @@ interface Env {
     AUTH_SECRET: string;
     AUTH_GITHUB_ID: string;
     AUTH_GITHUB_SECRET: string;
+    AUTH_GITLAB_ID: string;
+    AUTH_GITLAB_SECRET: string;
+    AUTH_GOOGLE_ID: string;
+    AUTH_GOOGLE_SECRET: string;
     DB: D1Database;
+    CLIENT_NOTIFICATIONS: Queue<{
+        platformId: string;
+        case: {
+            id: string;
+            kind: string;
+        };
+        action: string;
+    }>;
     ASSETS: Fetcher;
 }

@@ -206,3 +206,12 @@ export function zip<T extends Array<unknown>[]>(...arrays: [...T]): Array<Zipped
 
     return result;
 }
+
+export type PlatformNotificationEvent = {
+    platformId: string;
+    case: {
+        id: string;
+        kind: string;
+    };
+    action: string;
+};
