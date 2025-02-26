@@ -14,3 +14,7 @@ enabled = false
 binding = "DB"
 database_name = "pluto"
 database_id = "c364bad3-ca8f-491b-9432-add0f8334dcf"
+
+[[queues.producers]]
+queue = "client-notifications"
+binding = "CLIENT_NOTIFICATIONS"

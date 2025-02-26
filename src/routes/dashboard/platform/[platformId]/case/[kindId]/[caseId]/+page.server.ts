@@ -120,6 +120,15 @@ export const actions: Actions = {
                 )
                 .run();
 
+            await event.platform?.env.CLIENT_NOTIFICATIONS.send({
+                platformId: moderationPlatform.id,
+                case: {
+                    id: event.params.caseId,
+                    kind: event.params.kindId
+                },
+                action: form.data.id
+            });
+
             await informPlaformOfAction(
                 {
                     url: new URL(moderationPlatform.callbackUrl),

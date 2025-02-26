@@ -58,7 +58,7 @@ export function fixCase(givenCase: CaseDB): Case {
 
 export async function getModerationPlatform(
     platformId: PlatformId,
-    platform: Readonly<App.Platform> | undefined
+    platform: { env: { DB: D1Database } } | undefined
 ): Promise<Platform | null> {
     return (
         (await platform?.env.DB.prepare(`SELECT * FROM platforms WHERE id = ?`)
@@ -70,7 +70,7 @@ export async function getModerationPlatform(
 export async function getOrganization(
     organizationId: OrganizationId,
     adminId: string,
-    platform: Readonly<App.Platform> | undefined
+    platform: { env: { DB: D1Database } } | undefined
 ): Promise<Organization | null> {
     const organizationDatabase =
         (await platform?.env.DB.prepare(`SELECT * FROM organizations WHERE id = ? AND adminId = ?`)
@@ -83,7 +83,7 @@ export async function getCase(
     platformId: PlatformId,
     caseId: string,
     kindId: string,
-    platform: Readonly<App.Platform> | undefined
+    platform: { env: { DB: D1Database } } | undefined
 ): Promise<Case | null> {
     const caseDatabase =
         (await platform?.env.DB.prepare(
@@ -98,7 +98,7 @@ export async function getActions(
     platformId: PlatformId,
     caseId: string,
     kindId: string,
-    platform: Readonly<App.Platform> | undefined
+    platform: { env: { DB: D1Database } } | undefined
 ): Promise<Action[]> {
     return (
         (
@@ -116,7 +116,7 @@ export async function getActions(
 
 export async function getRules(
     platformId: PlatformId,
-    platform: Readonly<App.Platform> | undefined
+    platform: { env: { DB: D1Database } } | undefined
 ): Promise<Rule[]> {
     const rules = (
         (

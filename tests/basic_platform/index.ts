@@ -171,7 +171,15 @@ const server = Bun.serve({
             });
         }
 
-        const { action, subjectId, subjectKind } = await request.json();
+        const {
+            action,
+            subjectId,
+            subjectKind
+        }: {
+            action: 'publish' | 'reject' | 'unpublish' | undefined;
+            subjectId: string;
+            subjectKind: 'content';
+        } = await request.json();
 
         if (action === undefined) {
             for (const subject of subjects) {
