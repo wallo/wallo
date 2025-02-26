@@ -8,7 +8,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { actionFormSchema } from './action-schema';
 import { redirectMe } from '../../../queue';
 import { skip } from './queue';
-import { informPlaformOfAction, retrieveSubjectData } from '$lib/api';
+import { retrieveSubjectData } from '$lib/api';
 import { getActions, getCase, getRules } from '$lib/database';
 
 export const load = (async ({ params, platform, locals }) => {
@@ -128,16 +128,6 @@ export const actions: Actions = {
                 },
                 action: form.data.id
             });
-
-            await informPlaformOfAction(
-                {
-                    url: new URL(moderationPlatform.callbackUrl),
-                    secret: moderationPlatform.secret
-                },
-                event.params.kindId,
-                event.params.caseId,
-                form.data.id
-            );
 
             await event.platform?.env.DB.prepare(
                 `UPDATE cases
