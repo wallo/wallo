@@ -16,6 +16,7 @@ export async function redirectMe(
 ) {
     const { platformId } = params;
 
+    const timeAtGetCase = performance.now();
     await platform?.env.DB.prepare(
         `UPDATE cases
         SET assignedTo = ?1,
@@ -66,6 +67,7 @@ export async function redirectMe(
     if (!caseDB) redirect(303, `/dashboard/platform/${platformId}`);
 
     const moderationCase = fixCase(caseDB);
+    console.log('Time to get case:', performance.now() - timeAtGetCase);
 
     redirect(
         303,

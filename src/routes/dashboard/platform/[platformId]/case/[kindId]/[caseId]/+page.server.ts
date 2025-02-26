@@ -12,18 +12,24 @@ import { retrieveSubjectData } from '$lib/api';
 import { getActions, getCase, getRules } from '$lib/database';
 
 export const load = (async ({ params, platform, locals }) => {
+    const timeAtLoad = performance.now();
     const { moderationPlatform } = await canEnter(params, platform, locals);
+    console.log('Time to check permissions:', performance.now() - timeAtLoad);
+
+    const timeAtGetCase = performance.now();
     const moderationCase = await getCase(
         moderationPlatform.id,
         params.caseId,
         params.kindId,
         platform
     );
+    console.log('Time to get case:', performance.now() - timeAtGetCase);
 
     if (!moderationCase) error(404, 'Case not found in database');
 
     const url = new URL(moderationPlatform.callbackUrl);
 
+    const timeAtRetrieveSubjectData = performance.now();
     const subject = await retrieveSubjectData(
         {
             url,
@@ -32,13 +38,16 @@ export const load = (async ({ params, platform, locals }) => {
         params.kindId,
         params.caseId
     );
+    console.log('Time to retrieve subject data:', performance.now() - timeAtRetrieveSubjectData);
 
     if (subject.valid === false) error(subject.error.code, subject.error.message);
 
+    const timeAtGetRulesAndActions = performance.now();
     const [rules, actions] = await Promise.all([
         getRules(moderationPlatform.id, platform),
         getActions(moderationPlatform.id, params.caseId, params.kindId, platform)
     ]);
+    console.log('Time to get rules and actions:', performance.now() - timeAtGetRulesAndActions);
 
     return {
         moderationCase: moderationCase,
@@ -86,7 +95,9 @@ export const actions: Actions = {
         return { success: true };
     },
     action: async (event) => {
+        const timeAtCanEnterAction = performance.now();
         const failureOrInfo = await canEnterAction(event.params, event.platform, event.locals);
+        console.log('Time to check permissions:', performance.now() - timeAtCanEnterAction);
 
         if (isActionFailure(failureOrInfo)) {
             return failureOrInfo;
@@ -104,6 +115,7 @@ export const actions: Actions = {
         if (form.data.id === '__skip__') {
             await skip(userId, { ...event });
         } else {
+            const timeAtInsertAction = performance.now();
             await event.platform?.env.DB.prepare(
                 'INSERT INTO actions(platformId, relevantId, authorId, kind, actionInfo) VALUES(?, ?, ?, ?, ?)'
             )
@@ -119,7 +131,9 @@ export const actions: Actions = {
                     } satisfies CustomAction | DiscussionAction | PlatformAction)
                 )
                 .run();
+            console.log('Time to insert action:', performance.now() - timeAtInsertAction);
 
+            const timeAtSendNotification = performance.now();
             await event.platform?.env.CLIENT_NOTIFICATIONS.send({
                 platformId: moderationPlatform.id,
                 case: {
@@ -128,7 +142,9 @@ export const actions: Actions = {
                 },
                 action: form.data.id
             });
+            console.log('Time to send notification:', performance.now() - timeAtSendNotification);
 
+            const timeAtUpdateCaseStatus = performance.now();
             await event.platform?.env.DB.prepare(
                 `UPDATE cases
 					SET status = 'resolved'
@@ -138,6 +154,7 @@ export const actions: Actions = {
             )
                 .bind(moderationPlatform.id, event.params.caseId, event.params.kindId)
                 .run();
+            console.log('Time to update case status:', performance.now() - timeAtUpdateCaseStatus);
         }
 
         await redirectMe(userId, { ...event });
