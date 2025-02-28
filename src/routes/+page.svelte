@@ -269,7 +269,7 @@ fetch('https://wallo.dev/api/v1/publish', {
 	body: JSON.stringify({
 		subjectId: postId,
 		subjectKind: 'content',
-		platformId: env.PLATFORM_ID,
+		platformId: YOUR_PLATFORM_ID,
 	})
 });`.trimStart()}
                         />
@@ -290,9 +290,8 @@ fetch('https://wallo.dev/api/v1/publish', {
                             Wallo retrieves the content from your platform
                         </h3>
                         <p class="py-2">
-                            This is only done when a moderator needs to take action on the content.
-                            In the future, this can be configured to be done automatically to make
-                            moderation faster.
+                            This is only done when a moderator needs to take action on the content
+                            or once if you have AI moderation enabled.
                         </p>
                     </div>
                     <Card.Root class="w-full flex-1">
@@ -364,10 +363,15 @@ fetch(YOUR_PLATFORM, {
                 </div>
                 <div class="mb-4 flex flex-1 flex-wrap justify-between gap-4 overflow-hidden">
                     <div class="min-w-48 flex-1">
-                        <h3 class="text-2xl font-semibold">The moderator takes action</h3>
+                        <h3 class="text-2xl font-semibold">The (AI) moderator takes action</h3>
                         <p class="py-2">
                             The moderator can approve or reject the content based on the platform's
                             guidelines. Then Wallo will notify your platform of the action taken.
+                        </p>
+                        <p class="py-2">
+                            In case you have AI moderation enabled, the AI will take action if the
+                            confidence is high enough. Otherwise, the content will be sent to a
+                            human moderator.
                         </p>
                     </div>
                     <div class="flex w-full min-w-60 flex-1 flex-col gap-4">
@@ -474,7 +478,7 @@ fetch(YOUR_PLATFORM, {
                     <Card.Content>
                         <Card.Description>
                             <ul class="list-inside list-disc">
-                                <li>Up to 10000 requests per month</li>
+                                <li>Up to 1000 cases per month</li>
                                 <li>Basic moderation features</li>
                                 <li>Community support</li>
                             </ul>
@@ -491,9 +495,9 @@ fetch(YOUR_PLATFORM, {
                     <Card.Content>
                         <Card.Description>
                             <ul class="list-inside list-disc">
+                                <li>AI Automation</li>
                                 <li>Custom requests</li>
                                 <li>Custom moderation features</li>
-                                <li>24/7 support</li>
                             </ul>
                         </Card.Description>
                     </Card.Content>

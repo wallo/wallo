@@ -33,7 +33,7 @@ openssl rand -base64 33
 
 For the two other values, follow [this tutorial at Auth.js](https://authjs.dev/getting-started/authentication/oauth).
 
-Create a D1 database in Cloudflare and copy its id and name into `wrangler.toml`. Then run:
+Create a D1 database in Cloudflare (we named ours `pluto`) and copy its id and name into `wrangler.toml`. Then run:
 
 ```bash
 bun wrangler d1 execute YOUR_DB_NAME --local --file src/schema.sql
